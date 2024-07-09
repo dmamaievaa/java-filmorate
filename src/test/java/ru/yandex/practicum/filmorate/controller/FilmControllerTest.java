@@ -40,6 +40,7 @@ class FilmControllerTest {
         Film addedFilm = filmController.add(validFilm);
         assertEquals(1, addedFilm.getId());
     }
+
     @Test
     void testUpdateFilm() {
         Film existingFilm = Film.builder()
