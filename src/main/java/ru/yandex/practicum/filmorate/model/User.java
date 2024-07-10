@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.Builder;
 import lombok.Data;
 
 import jakarta.validation.constraints.Email;
@@ -9,7 +8,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import java.time.LocalDate;
 
-@Builder
 @Data
 public class User {
     private int id;
@@ -26,4 +24,11 @@ public class User {
     @NotNull(message = "Birthday cannot be null")
     @Past(message = "Birthday must be in the past")
     private LocalDate birthday;
+    public User(int id, String email, String login, String name, LocalDate birthday) {
+        this.id = id;
+        this.email = email;
+        this.login = login;
+        this.name = (name == null || name.isBlank()) ? login : name;
+        this.birthday = birthday;
+    }
 }

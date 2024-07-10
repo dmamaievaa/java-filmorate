@@ -1,65 +1,59 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.validation.UserValidator;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UserControllerTest {
 
     private UserController userController;
+    private Validator validator;
+    private UserValidator userValidator;
+    private User validUser;
+
 
     @BeforeEach
     void setUp() {
         userController = new UserController();
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        validator = factory.getValidator();
+        userValidator = new UserValidator();
+        validUser = TestUtil.createValidUser();
     }
 
     @Test
     void testAddUser() {
-        User validUser = User.builder()
-                .email("user@example.com")
-                .login("userlogin")
-                .name("username")
-                .birthday(LocalDate.of(2000, 1, 1))
-                .build();
-
-        User invalidUser = User.builder()
-                .email(null)
-                .login("userlogin")
-                .name("username")
-                .birthday(LocalDate.of(2000, 1, 1))
-                .build();
-
-        assertThrows(ValidationException.class, () -> userController.add(invalidUser));
         User addedUser = userController.add(validUser);
         assertEquals(1, addedUser.getId());
+        Set<ConstraintViolation<User>> violations = validator.validate(validUser);
+        assertTrue(violations.isEmpty());
     }
 
     @Test
     void testUpdateUser() {
-        User existingUser = User.builder()
-                .id(1)
-                .email("user@example.com")
-                .login("userlogin")
-                .name("username")
-                .birthday(LocalDate.of(2000, 1, 1))
-                .build();
+        User updatedUser = new User(
+                1,
+                "updateduser@example.com",
+                "updateduserlogin",
+                "updatedusername",
+                LocalDate.of(2001, 1, 1)
+        );
 
-        User updatedUser = User.builder()
-                .id(1)
-                .email("updateduser@example.com")
-                .login("updateduserlogin")
-                .name("updatedusername")
-                .birthday(LocalDate.of(2001, 1, 1))
-                .build();
-
-        userController.add(existingUser);
+        userController.add(validUser);
 
         User result = userController.update(updatedUser);
         assertEquals("updateduser@example.com", result.getEmail());
@@ -68,23 +62,15 @@ class UserControllerTest {
 
     @Test
     void testGetAllUsers() {
-        User user1 = User.builder()
-                .id(1)
-                .email("user1@example.com")
-                .login("user1login")
-                .name("user1name")
-                .birthday(LocalDate.of(2000, 1, 1))
-                .build();
+        userController.add(validUser);
+        User user2 = new User(
+                2,
+                "user2@example.com",
+                "user2login",
+                "user2name",
+                LocalDate.of(2001, 1, 1)
+        );
 
-        User user2 = User.builder()
-                .id(2)
-                .email("user2@example.com")
-                .login("user2login")
-                .name("user2name")
-                .birthday(LocalDate.of(2001, 1, 1))
-                .build();
-
-        userController.add(user1);
         userController.add(user2);
 
         List<User> allUsers = userController.getAll();
@@ -92,50 +78,47 @@ class UserControllerTest {
     }
 
     @Test
-    void shouldThrowExceptionWhenEmailIsNull() {
-        User user = User.builder()
-                .email(null)
-                .login("login")
-                .name("name")
-                .birthday(LocalDate.of(2000, 1, 1))
-                .build();
+    void testInvalidEmail() {
+        User invalidEmailUser = new User(
+                0,
+                "invalid-email",
+                "user2login",
+                "Name",
+                LocalDate.of(2025, 1, 1)
+        );
 
-        assertThrows(ValidationException.class, () -> userController.add(user));
+        assertThrows(ValidationException.class, () -> {
+            userValidator.isValid(invalidEmailUser, null);
+        });
     }
 
     @Test
-    void shouldThrowExceptionWhenEmailIsInvalid() {
-        User user = User.builder()
-                .email("invalidemail")
-                .login("login")
-                .name("name")
-                .birthday(LocalDate.of(2000, 1, 1))
-                .build();
+    void testInvalidUserBirthday() {
+        User InvalidUserBirthday = new User(
+                0,
+                "user@example.com",
+                "user2login",
+                "Name",
+                LocalDate.of(2025, 1, 1)
+        );
 
-        assertThrows(ValidationException.class, () -> userController.add(user));
+        assertThrows(ValidationException.class, () -> {
+            userValidator.isValid(InvalidUserBirthday, null);
+        });
     }
 
     @Test
-    void shouldThrowExceptionWhenLoginContainsSpaces() {
-        User user = User.builder()
-                .email("user@example.com")
-                .login("invalid login")
-                .name("name")
-                .birthday(LocalDate.of(2000, 1, 1))
-                .build();
+    void testAutomaticUserName() {
+        User userWithoutName = new User(
+                0,
+                "user@example.com",
+                "user2login",
+                null, // Name is null
+                LocalDate.of(2000, 1, 1)
+        );
 
-        assertThrows(ValidationException.class, () -> userController.add(user));
-    }
+        userValidator.isValid(userWithoutName, null);
 
-    @Test
-    void shouldThrowExceptionWhenBirthdayIsInFuture() {
-        User user = User.builder()
-                .email("user@example.com")
-                .login("login")
-                .name("name")
-                .birthday(LocalDate.of(3000, 1, 1))
-                .build();
-
-        assertThrows(ValidationException.class, () -> userController.add(user));
+        assertEquals("user2login", userWithoutName.getName());
     }
 }

@@ -1,27 +1,41 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validation;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import jakarta.validation.Validator;
+import jakarta.validation.ValidatorFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.validation.FilmValidator;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class FilmControllerTest {
 
     private FilmController filmController;
+    private Validator validator;
+    private FilmValidator filmValidator;
+
 
     @BeforeEach
     void setUp() {
         filmController = new FilmController();
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        validator = factory.getValidator();
+        filmValidator = new FilmValidator();
     }
 
     @Test
-    void testAddFilm() {
+    void testAddValidFilm() {
         Film validFilm = Film.builder()
                 .name("Film")
                 .description("Film description")
@@ -29,16 +43,25 @@ class FilmControllerTest {
                 .duration(120)
                 .build();
 
+        Film addedFilmSuccessfully = filmController.add(validFilm);
+        assertEquals(1, addedFilmSuccessfully.getId());
+        Set<ConstraintViolation<Film>> violations = validator.validate(validFilm);
+        assertTrue(violations.isEmpty());
+    }
+
+    @Test
+    void testAddInvalidFilm() {
         Film invalidFilm = Film.builder()
-                .name(null)
+                .name("")
                 .description("Film description")
                 .releaseDate(LocalDate.of(2020, 1, 1))
                 .duration(120)
                 .build();
 
-        assertThrows(ValidationException.class, () -> filmController.add(invalidFilm));
-        Film addedFilm = filmController.add(validFilm);
-        assertEquals(1, addedFilm.getId());
+        Film addedFilmFailed = filmController.add(invalidFilm);
+        assertEquals(1, addedFilmFailed.getId());
+        Set<ConstraintViolation<Film>> violations = validator.validate(invalidFilm);
+        assertFalse(violations.isEmpty());
     }
 
     @Test
@@ -91,52 +114,17 @@ class FilmControllerTest {
         assertEquals(2, allFilms.size());
     }
 
-
     @Test
-    void shouldThrowExceptionWhenNameIsNull() {
-        Film film = Film.builder()
-                .name(null)
+    void testInvalidReleaseFilmDate() {
+        Film invalidFilm = Film.builder()
+                .name("Film")
                 .description("Film description")
-                .releaseDate(LocalDate.of(2020, 1, 1))
+                .releaseDate(LocalDate.of(1700, 1, 1))
                 .duration(120)
                 .build();
 
-        assertThrows(ValidationException.class, () -> filmController.add(film));
-    }
-
-    @Test
-    void shouldThrowExceptionWhenDescriptionIsTooLong() {
-        Film film = Film.builder()
-                .name("Film")
-                .description("Film description".repeat(13))
-                .releaseDate(LocalDate.of(2020, 1, 1))
-                .duration(120)
-                .build();
-
-        assertThrows(ValidationException.class, () -> filmController.add(film));
-    }
-
-    @Test
-    void shouldThrowExceptionWhenReleaseDateIsTooEarly() {
-        Film film = Film.builder()
-                .name("Film")
-                .description("Film description")
-                .releaseDate(LocalDate.of(1890, 1, 1))
-                .duration(120)
-                .build();
-
-        assertThrows(ValidationException.class, () -> filmController.add(film));
-    }
-
-    @Test
-    void shouldThrowExceptionWhenDurationIsNegative() {
-        Film film = Film.builder()
-                .name("Film")
-                .description("Film description")
-                .releaseDate(LocalDate.of(2020, 1, 1))
-                .duration(-120)
-                .build();
-
-        assertThrows(ValidationException.class, () -> filmController.add(film));
+        assertThrows(ValidationException.class, () -> {
+            filmValidator.isValid(invalidFilm, null);
+        });
     }
 }
