@@ -24,6 +24,7 @@ public class User {
     @NotNull(message = "Birthday cannot be null")
     @Past(message = "Birthday must be in the past")
     private LocalDate birthday;
+
     public User(int id, String email, String login, String name, LocalDate birthday) {
         this.id = id;
         this.email = email;
