@@ -94,7 +94,7 @@ class UserControllerTest {
 
     @Test
     void testInvalidUserBirthday() {
-        User InvalidUserBirthday = new User(
+        User invalidUserBirthday = new User(
                 0,
                 "user@example.com",
                 "user2login",
@@ -103,7 +103,7 @@ class UserControllerTest {
         );
 
         assertThrows(ValidationException.class, () -> {
-            userValidator.isValid(InvalidUserBirthday, null);
+            userValidator.isValid(invalidUserBirthday, null);
         });
     }
 
