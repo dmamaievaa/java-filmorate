@@ -6,7 +6,7 @@ import java.time.LocalDate;
 
 public class TestUtil {
     public static User createValidUser() {
-        return new User( 0,
+        return new User(0,
                 "user@example.com",
                 "userlogin",
                 "username",
