@@ -29,7 +29,7 @@ public class UserController {
         user.setId(userId++);
         checkUserLogin(user);
         users.put(user.getId(), user);
-        log.info("User with id " + user.getId() + " successfully added");
+        log.info("User with id {} successfully added", user.getId());
         return user;
     }
 
@@ -38,9 +38,9 @@ public class UserController {
         if (users.containsKey(user.getId())) {
             checkUserLogin(user);
             users.put(user.getId(), user);
-            log.info("User with id " + user.getId() + " successfully updated");
+            log.info("User with id {} successfully updated", user.getId());
         } else {
-            log.warn("User with id " +  user.getId() + " not found for update");
+            log.warn("User with id {} not found for update", user.getId());
             throw new ValidationException("Cannot update user, no user with such id");
         }
         return user;
@@ -49,6 +49,7 @@ public class UserController {
     private void checkUserLogin(User user) {
         for (User existingUser : users.values()) {
             if (user.getLogin().equals(existingUser.getLogin())) {
+                log.warn("User with login {} already registered", user.getLogin());
                 throw new ValidationException("User with such login already registered");
             }
         }

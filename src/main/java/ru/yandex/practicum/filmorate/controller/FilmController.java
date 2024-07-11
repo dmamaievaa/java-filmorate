@@ -28,7 +28,7 @@ public class FilmController {
     public Film add(@ValidFilm @RequestBody Film film) {
         film.setId(filmId++);
         films.put(film.getId(), film);
-        log.info("Film with id " + film.getId() + " successfully added");
+        log.info("Film with id {} successfully added", film.getId());
         return film;
     }
 
@@ -36,9 +36,9 @@ public class FilmController {
     public Film update(@ValidFilm @RequestBody Film film) {
         if (films.containsKey(film.getId())) {
             films.put(film.getId(), film);
-            log.info("Film with id " + film.getId() + " successfully updated");
+            log.info("Film with id {} successfully updated", film.getId());
         } else {
-            log.warn("Film with id " + film.getId() + " not found for update");
+            log.warn("Film with id {} not found for update", film.getId());
             throw new ValidationException("No film with such id");
         }
         return film;
