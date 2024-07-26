@@ -32,6 +32,7 @@ class FilmControllerTest {
     private FilmService filmService;
     private UserService userService;
     private InMemoryUserStorage userStorage;
+    private User user1;
 
 
     @BeforeEach
@@ -44,6 +45,7 @@ class FilmControllerTest {
         userService =  new UserServiceImpl(userStorage);
         filmService = new FilmServiceImpl(filmStorage, userService);
         filmController = new FilmController(filmService);
+        user1 = TestUtil.createFirstUser();
     }
 
     @Test
@@ -147,10 +149,9 @@ class FilmControllerTest {
                 .build();
 
         filmController.add(film);
-        User user = new User(1, "user@example.com", "user", "User", LocalDate.of(1990, 1, 1));
-        userService.add(user);
+        userService.add(user1);
 
-        filmController.addLike(film.getId(), user.getId());
+        filmController.addLike(film.getId(), user1.getId());
 
         Film likedFilm = filmController.getFilmById(film.getId());
         assertEquals(1, likedFilm.getLikesCount());
@@ -166,11 +167,9 @@ class FilmControllerTest {
                 .build();
 
         filmController.add(film);
-        User user = new User(1, "user@example.com", "user", "User", LocalDate.of(1990, 1, 1));
-        userService.add(user);
-
-        filmController.addLike(film.getId(), user.getId());
-        filmController.removeLike(film.getId(), user.getId());
+        userService.add(user1);
+        filmController.addLike(film.getId(), user1.getId());
+        filmController.removeLike(film.getId(), user1.getId());
 
         Film likedFilm = filmController.getFilmById(film.getId());
         assertEquals(0, likedFilm.getLikesCount());
@@ -195,13 +194,29 @@ class FilmControllerTest {
         filmController.add(film1);
         filmController.add(film2);
 
-        User user = new User(1, "user@example.com", "user", "User", LocalDate.of(1990, 1, 1));
-        userService.add(user);
-
-        filmController.addLike(film1.getId(), user.getId());
+        userService.add(user1);
+        filmController.addLike(film1.getId(), user1.getId());
 
         List<Film> popularFilms = filmController.getPopular(1);
         assertEquals(1, popularFilms.size());
-        assertEquals(film1.getId(), popularFilms.get(0).getId());
+        assertEquals(film1.getId(), popularFilms.getFirst().getId());
+    }
+
+    @Test
+    void testUserCannotLikeFilmTwice() {
+        Film film = Film.builder()
+                .name("Film")
+                .description("Film description")
+                .releaseDate(LocalDate.of(2020, 1, 1))
+                .duration(120)
+                .build();
+
+        filmController.add(film);
+        userService.add(user1);
+        filmController.addLike(film.getId(), user1.getId());
+        filmController.addLike(film.getId(), user1.getId());
+
+        Film likedFilm = filmController.getFilmById(film.getId());
+        assertEquals(1, likedFilm.getLikesCount());
     }
 }
