@@ -73,7 +73,8 @@ class FilmControllerTest {
         Film addedFilmFailed = filmController.add(invalidFilm);
         assertEquals(1, addedFilmFailed.getId());
         Set<ConstraintViolation<Film>> violations = validator.validate(invalidFilm);
-        assertFalse(violations.isEmpty());    }
+        assertFalse(violations.isEmpty());
+    }
 
     @Test
     void testUpdateFilm() {
