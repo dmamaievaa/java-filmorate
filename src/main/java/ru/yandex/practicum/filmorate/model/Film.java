@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Builder;
 import lombok.Data;
 
@@ -8,7 +9,11 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
+import lombok.EqualsAndHashCode;
+
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Builder
 @Data
@@ -27,4 +32,24 @@ public class Film {
 
     @Positive(message = "Duration must be positive")
     private long duration;
+
+    @EqualsAndHashCode.Exclude
+    @JsonIgnore
+    @Builder.Default
+    private Set<Integer> likes = new HashSet<>();
+
+    @Builder.Default
+    private int likesCount = 0;
+
+    public void addLike(int userId) {
+        if (likes.add(userId)) {
+            likesCount++;
+        }
+    }
+
+    public void removeLike(int userId) {
+        if (likes.remove(userId)) {
+            likesCount--;
+        }
+    }
 }

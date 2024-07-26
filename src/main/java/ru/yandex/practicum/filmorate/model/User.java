@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 public class User {
@@ -32,4 +34,6 @@ public class User {
         this.name = (name == null || name.isBlank()) ? login : name;
         this.birthday = birthday;
     }
+
+    public final Set<Integer> friends = new HashSet<>();
 }
