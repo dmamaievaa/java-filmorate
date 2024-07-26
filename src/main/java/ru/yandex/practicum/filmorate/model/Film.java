@@ -37,19 +37,4 @@ public class Film {
     @JsonIgnore
     @Builder.Default
     private Set<Integer> likes = new HashSet<>();
-
-    @Builder.Default
-    private int likesCount = 0;
-
-    public void addLike(int userId) {
-        if (likes.add(userId)) {
-            likesCount++;
-        }
-    }
-
-    public void removeLike(int userId) {
-        if (likes.remove(userId)) {
-            likesCount--;
-        }
-    }
 }

@@ -154,7 +154,7 @@ class FilmControllerTest {
         filmController.addLike(film.getId(), user1.getId());
 
         Film likedFilm = filmController.getFilmById(film.getId());
-        assertEquals(1, likedFilm.getLikesCount());
+        assertEquals(1, likedFilm.getLikes().size());
     }
 
     @Test
@@ -172,7 +172,7 @@ class FilmControllerTest {
         filmController.removeLike(film.getId(), user1.getId());
 
         Film likedFilm = filmController.getFilmById(film.getId());
-        assertEquals(0, likedFilm.getLikesCount());
+        assertEquals(0, likedFilm.getLikes().size());
     }
 
     @Test
@@ -217,6 +217,6 @@ class FilmControllerTest {
         filmController.addLike(film.getId(), user1.getId());
 
         Film likedFilm = filmController.getFilmById(film.getId());
-        assertEquals(1, likedFilm.getLikesCount());
+        assertEquals(1, likedFilm.getLikes().size());
     }
 }

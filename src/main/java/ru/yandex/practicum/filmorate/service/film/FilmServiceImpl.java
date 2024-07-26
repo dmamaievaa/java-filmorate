@@ -49,12 +49,11 @@ public class FilmServiceImpl implements FilmService {
     @Override
     public Film addLike(int filmId, int userId) {
         Film film = this.getFilmById(filmId);
-        User user = userService.getUserById(userId);
         if (film.getLikes().contains(userId)) {
             log.info("User id = {} already liked film with id = {}", userId, filmId);
             return film;
         }
-        film.addLike(userId);
+        film.getLikes().add(userId);
         filmStorage.update(film);
         log.info("Like to film with id = {} successfully added", filmId);
         return film;
@@ -67,8 +66,8 @@ public class FilmServiceImpl implements FilmService {
             log.info("Like to film with id = {}, from user id = {} does not exist", filmId, userId);
             throw new NotFoundException("Like from user id = " + userId + " not found.");
         }
-        film.removeLike(userId);
         filmStorage.update(film);
+        film.getLikes().remove(userId);
         log.info("Like to film with id = {} successfully removed", filmId);
     }
 
