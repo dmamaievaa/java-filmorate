@@ -31,6 +31,7 @@ public class FilmController {
     public List<Film> getAll() {
         return filmService.getAll();
     }
+
     @PostMapping
     public Film add(@ValidFilm @RequestBody Film film) {
         return filmService.add(film);
