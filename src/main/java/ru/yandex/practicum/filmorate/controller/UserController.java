@@ -15,6 +15,8 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final String friend = "/{id}/friends/{friendId}";
+    private final String friendIdPath = "friend-id";
 
     @Autowired
     public UserController(UserService userService) {
@@ -41,13 +43,13 @@ public class UserController {
         return userService.update(user);
     }
 
-    @PutMapping("/{id}/friends/{friendId}")
-    public User addFriend(@PathVariable int id, @PathVariable int friendId) {
+    @PutMapping(friend)
+    public User addFriend(@PathVariable int id, @PathVariable(friendIdPath) int friendId) {
         return userService.addFriend(id, friendId);
     }
 
-    @DeleteMapping("/{id}/friends/{friendId}")
-    public void deleteFriend(@PathVariable int id, @PathVariable int friendId) {
+    @DeleteMapping(friend)
+    public void deleteFriend(@PathVariable int id, @PathVariable(friendIdPath) int friendId) {
         userService.deleteFriend(id, friendId);
     }
 
