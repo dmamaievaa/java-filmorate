@@ -17,7 +17,6 @@ public class FilmController {
 
     private final FilmService filmService;
     private final String like = "/{id}/like/{userId}";
-    private final String userIdPath = "user-id";
 
     @Autowired
     public FilmController(FilmService filmService) {
@@ -45,12 +44,14 @@ public class FilmController {
     }
 
     @PutMapping(like)
-    public Film addLike(@PathVariable int id, @PathVariable(userIdPath) int userId) {
+    public Film addLike(@PathVariable int id, @PathVariable int userId) {
+        log.info("Adding like to film with id: {} by user with id: {}", id, userId);
         return filmService.addLike(id, userId);
     }
 
     @DeleteMapping(like)
-    public void removeLike(@PathVariable int id, @PathVariable(userIdPath) int userId) {
+    public void removeLike(@PathVariable int id, @PathVariable int userId) {
+        log.info("Removing like from film with id: {} by user with id: {}", id, userId);
         filmService.removeLike(id, userId);
     }
 
