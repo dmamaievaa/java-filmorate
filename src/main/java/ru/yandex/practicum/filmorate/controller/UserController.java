@@ -33,13 +33,13 @@ public class UserController {
 
     @PostMapping
     public User add(@ValidUser @RequestBody User user) {
-        return userService.add(user);
+        return userStorage.add(user);
     }
 
 
     @PutMapping
     public User update(@ValidUser @RequestBody User newUser) {
-        return userService.update(newUser);
+        return userStorage.update(newUser);
     }
 
     @PutMapping(friendPath)

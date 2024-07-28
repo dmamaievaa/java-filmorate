@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.film.FilmServiceImpl;
-import ru.yandex.practicum.filmorate.service.user.UserServiceImpl;
 import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.validation.FilmValidator;
@@ -24,7 +23,6 @@ class FilmControllerTest {
     private FilmValidator filmValidator;
     private InMemoryFilmStorage filmStorage;
     private FilmServiceImpl filmService;
-    private UserServiceImpl userService;
     private InMemoryUserStorage userStorage;
     private User user1;
 
@@ -33,7 +31,6 @@ class FilmControllerTest {
         filmValidator = new FilmValidator();
         filmStorage = new InMemoryFilmStorage();
         userStorage = new InMemoryUserStorage();
-        userService = new UserServiceImpl(userStorage);
         filmService = new FilmServiceImpl(filmStorage, userStorage);
         filmController = new FilmController(filmService, filmStorage);
         user1 = TestUtil.createFirstUser();
@@ -123,7 +120,7 @@ class FilmControllerTest {
                 .build();
 
         Film addedFilm = filmController.add(film);
-        userService.add(user1);
+        userStorage.add(user1);
 
         filmController.addLike(addedFilm.getId(), user1.getId());
 
@@ -142,7 +139,7 @@ class FilmControllerTest {
                 .build();
 
         Film addedFilm = filmController.add(film);
-        userService.add(user1);
+        userStorage.add(user1);
         filmController.addLike(addedFilm.getId(), user1.getId());
         filmController.removeLike(addedFilm.getId(), user1.getId());
 
@@ -170,7 +167,7 @@ class FilmControllerTest {
         filmController.add(film1);
         filmController.add(film2);
 
-        userService.add(user1);
+        userStorage.add(user1);
         filmController.addLike(film1.getId(), user1.getId());
 
         Collection<Film> popularFilms = filmController.getPopular(1L);
@@ -188,7 +185,7 @@ class FilmControllerTest {
                 .build();
 
         Film addedFilm = filmController.add(film);
-        userService.add(user1);
+        userStorage.add(user1);
         filmController.addLike(addedFilm.getId(), user1.getId());
         filmController.addLike(addedFilm.getId(), user1.getId());
 
@@ -200,7 +197,7 @@ class FilmControllerTest {
     @Test
     void testAddLikeToNonexistentFilm() {
         Long nonexistentFilmId = 999L;
-        userService.add(user1);
+        userStorage.add(user1);
 
         Exception exception = assertThrows(NotFoundException.class, () -> {
             filmController.addLike(nonexistentFilmId, user1.getId());
@@ -211,6 +208,4 @@ class FilmControllerTest {
         System.out.println(actualMessage);
         assertEquals(actualMessage, expectedMessage);
     }
-
-
 }

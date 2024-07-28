@@ -7,9 +7,6 @@ import java.util.List;
 
 @Service
 public interface UserService {
-    User add(User user);
-
-    User update(User user);
 
     void addFriend(Long userId, Long friendId);
 

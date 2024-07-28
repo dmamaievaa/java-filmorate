@@ -17,16 +17,6 @@ public class UserServiceImpl implements UserService {
     private final UserStorage userStorage;
 
     @Override
-    public User add(User user) {
-        return userStorage.add(user);
-    }
-
-    @Override
-    public User update(User user) {
-        return userStorage.update(user);
-    }
-
-    @Override
     public void addFriend(Long userId, Long friendId) {
         User user = userStorage.getUserById(userId);
         if (user == null) {

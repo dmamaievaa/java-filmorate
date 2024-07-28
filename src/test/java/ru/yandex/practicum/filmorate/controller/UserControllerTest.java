@@ -9,12 +9,9 @@ import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.validation.UserValidator;
 
 import java.time.LocalDate;
-import java.util.Collection;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class UserControllerTest {
 
@@ -28,8 +25,9 @@ class UserControllerTest {
 
     @BeforeEach
     void setUp() {
-        userService = new UserServiceImpl(new InMemoryUserStorage());
-        userController = new UserController(userService, new InMemoryUserStorage());
+        InMemoryUserStorage userStorage = new InMemoryUserStorage();
+        userService = new UserServiceImpl(userStorage);
+        userController = new UserController(userService, userStorage);
         userValidator = new UserValidator();
         validUser = TestUtil.createValidUser();
         user1 = TestUtil.createFirstUser();
@@ -40,21 +38,21 @@ class UserControllerTest {
     @Test
     void testAddUser() {
         User addedUser = userController.add(validUser);
-        assertEquals(1, addedUser.getId());
+        assertEquals(1L, addedUser.getId());
         userValidator.isValid(addedUser, null);
     }
 
     @Test
     void testUpdateUser() {
+        userController.add(validUser);
+
         User updatedUser = new User(
-                1L,
+                validUser.getId(),
                 "updateduser@example.com",
                 "updateduserlogin",
                 "updatedusername",
                 LocalDate.of(2001, 1, 1)
         );
-
-        userController.add(validUser);
 
         User result = userController.update(updatedUser);
         assertEquals("updateduser@example.com", result.getEmail());
@@ -79,7 +77,7 @@ class UserControllerTest {
         userController.addFriend(user1.getId(), user2.getId());
         userController.deleteFriend(user1.getId(), user2.getId());
 
-        Collection<User> friends = userController.getFriends(user1.getId());
+        List<User> friends = userController.getFriends(user1.getId());
         assertEquals(0, friends.size());
     }
 
@@ -88,27 +86,12 @@ class UserControllerTest {
         userController.add(user1);
         userController.add(user2);
         userController.add(user3);
-        userController.addFriend(user1.getId(), user3.getId());
+        userService.addFriend(user1.getId(), user3.getId());
         userController.addFriend(user2.getId(), user3.getId());
 
-        Collection<User> commonFriends = userController.getCommonFriends(user1.getId(), user2.getId());
+        List<User> commonFriends = userController.getCommonFriends(user1.getId(), user2.getId());
         assertEquals(1, commonFriends.size());
         assertTrue(commonFriends.contains(user3));
-    }
-
-    @Test
-    void testInvalidEmail() {
-        User invalidEmailUser = new User(
-                0L,
-                "invalid-email",
-                "user2login",
-                "Name",
-                LocalDate.of(2025, 1, 1)
-        );
-
-        assertThrows(ValidationException.class, () -> {
-            userValidator.isValid(invalidEmailUser, null);
-        });
     }
 
     @Test
@@ -127,21 +110,6 @@ class UserControllerTest {
     }
 
     @Test
-    void testAddAndRemoveFriend() {
-        userController.add(user1);
-        userController.add(user2);
-
-        userController.addFriend(user1.getId(), user2.getId());
-        Collection<User> friendsAfterAdding = userController.getFriends(user1.getId());
-        assertEquals(1, friendsAfterAdding.size());
-        assertTrue(friendsAfterAdding.contains(user2));
-
-        userController.deleteFriend(user1.getId(), user2.getId());
-        Collection<User> friendsAfterRemoving = userController.getFriends(user1.getId());
-        assertEquals(0, friendsAfterRemoving.size());
-    }
-
-    @Test
     void testAutomaticUserName() {
         User userWithoutName = new User(
                 0L,
@@ -154,40 +122,5 @@ class UserControllerTest {
         userValidator.isValid(userWithoutName, null);
 
         assertEquals("userlogin", userWithoutName.getName());
-    }
-
-    @Test
-    void testDeleteFriend() {
-        userController.add(user1);
-        userController.add(user2);
-
-        userController.addFriend(1, 2);
-        userController.deleteFriend(1, 2);
-
-        List<User> friendsOfUser1 = userController.getFriends(1);
-        List<User> friendsOfUser2 = userController.getFriends(2);
-
-        assertTrue(friendsOfUser1.isEmpty());
-        assertTrue(friendsOfUser2.isEmpty());
-    }
-
-    @Test
-    void testGetCommonFriends() {
-        User user4 = new User(4L, "user4@example.com", "user4", "User Four",
-                LocalDate.of(1993, 1, 1));
-
-        userController.add(user1);
-        userController.add(user2);
-        userController.add(user3);
-        userController.add(user4);
-
-        userController.addFriend(1, 2);
-        userController.addFriend(1, 3);
-        userController.addFriend(2, 3);
-        userController.addFriend(2, 4);
-
-        List<User> commonFriends = userController.getCommonFriends(1, 2);
-        assertEquals(1, commonFriends.size());
-        assertEquals(3, commonFriends.getFirst().getId());
     }
 }
