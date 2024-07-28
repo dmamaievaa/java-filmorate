@@ -43,7 +43,6 @@ public class UserServiceImpl implements UserService {
         log.info("Friend with id = {} successfully added", friendId);
     }
 
-
     @Override
     public void deleteFriend(Long userId, Long friendId) {
         User user = userStorage.getUserById(userId);
@@ -61,12 +60,17 @@ public class UserServiceImpl implements UserService {
         log.info("Friend with id = {} successfully removed", friendId);
     }
 
-
     @Override
     public List<User> getFriends(Long userId) {
-        User user =  userStorage.getUserById(userId);
-        log.info("Friend list obtained");
-        return user.getFriends().stream().map(userStorage::getUserById).toList();
+        User user = userStorage.getUserById(userId);
+        if (user == null) {
+            throw new NotFoundException("User not found");
+        }
+
+        log.info("Friend list obtained for user with id = {}", userId);
+        return user.getFriends().stream()
+                .map(userStorage::getUserById)
+                .toList();
     }
 
     @Override

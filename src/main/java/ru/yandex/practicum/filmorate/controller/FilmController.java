@@ -23,7 +23,6 @@ public class FilmController {
         this.filmStorage = filmStorage;
     }
 
-
     @GetMapping
     public Collection<Film> getAll() {
         return filmStorage.getAll();
@@ -33,7 +32,6 @@ public class FilmController {
     public Film add(@ValidFilm @RequestBody Film film) {
         return filmStorage.add(film);
     }
-
 
     @PutMapping
     public Film update(@ValidFilm @RequestBody Film newFilm) {
