@@ -8,9 +8,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -35,10 +33,9 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public List<Film> getPopular(Long count) {
-        Collection<Film> allFilms = filmStorage.getAll();
-        return allFilms.stream()
-                .sorted((o1, o2) -> o2.getLikes().size() - o1.getLikes().size())
+        return filmStorage.getAll().stream()
+                .sorted((o1, o2) -> Long.compare(o2.getLikes().size(), o1.getLikes().size()))
                 .limit(count)
-                .collect(Collectors.toList());
+                .toList();
     }
 }

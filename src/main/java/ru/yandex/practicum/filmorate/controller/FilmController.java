@@ -16,8 +16,6 @@ import java.util.Collection;
 public class FilmController {
     private FilmService filmService;
     private FilmStorage filmStorage;
-    private final String likePath = "/{id}/like/{user-id}";
-    private final String userIdPath = "user-id";
 
     @Autowired
     public FilmController(FilmService filmService, FilmStorage filmStorage) {
@@ -42,13 +40,13 @@ public class FilmController {
         return filmStorage.update(newFilm);
     }
 
-    @PutMapping(likePath)
-    public void addLike(@PathVariable Long id, @PathVariable(userIdPath) Long userId) {
+    @PutMapping("/{id}/like/{user-id}")
+    public void addLike(@PathVariable Long id, @PathVariable("user-id") Long userId) {
         filmService.addLike(id, userId);
     }
 
-    @DeleteMapping(likePath)
-    public void removeLike(@PathVariable Long id, @PathVariable(userIdPath) Long userId) {
+    @DeleteMapping("/{id}/like/{user-id}")
+    public void removeLike(@PathVariable Long id, @PathVariable("user-id") Long userId) {
         filmService.removeLike(id, userId);
     }
 
