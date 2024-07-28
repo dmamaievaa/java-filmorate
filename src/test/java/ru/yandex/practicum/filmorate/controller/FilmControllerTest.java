@@ -43,8 +43,8 @@ class FilmControllerTest {
         filmStorage = new InMemoryFilmStorage();
         userStorage = new InMemoryUserStorage();
         userService =  new UserServiceImpl(userStorage);
-        filmService = new FilmServiceImpl(filmStorage, userService);
-        filmController = new FilmController(filmService);
+        filmService = new FilmServiceImpl(filmStorage, userStorage);
+        filmController = new FilmController(filmService, filmStorage);
         user1 = TestUtil.createFirstUser();
     }
 

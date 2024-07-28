@@ -2,14 +2,18 @@ package ru.yandex.practicum.filmorate.service.film;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.service.user.UserService;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -18,7 +22,7 @@ import java.util.stream.Collectors;
 public class FilmServiceImpl implements FilmService {
 
     private final FilmStorage filmStorage;
-    private final UserService userService;
+    private final UserStorage userStorage;
 
     @Override
     public Film getFilmById(int filmId) {
@@ -31,27 +35,26 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public List<Film> getAll() {
-        return filmStorage.getAll();
-    }
-
-    @Override
-    public Film add(Film film) {
-        return filmStorage.add(film);
-    }
-
-    @Override
-    public Film update(Film film) {
-        return filmStorage.update(film);
-    }
-
-    @Override
     public Film addLike(int filmId, int userId) {
-        Film film = this.getFilmById(filmId);
+        Optional<Film> filmOptional = filmStorage.getFilmById(filmId);
+        if (filmOptional.isEmpty()) {
+            log.error("Film with id = {} not found in the database", filmId);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Film with id = " + filmId + " not found in the database");
+        }
+
+        Optional<User> userOptional = userStorage.getUserById(userId);
+        if (userOptional.isEmpty()) {
+            log.error("User with id = {} not found in the database", userId);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with id = " + userId + " not found in the database");
+        }
+
+        Film film = filmOptional.get();
+
         if (film.getLikes().contains(userId)) {
             log.info("User id = {} already liked film with id = {}", userId, filmId);
             return film;
         }
+
         film.getLikes().add(userId);
         filmStorage.update(film);
         log.info("Like to film with id = {} successfully added", filmId);
@@ -65,8 +68,8 @@ public class FilmServiceImpl implements FilmService {
             log.info("Like to film with id = {}, from user id = {} does not exist", filmId, userId);
             throw new NotFoundException("Like from user id = " + userId + " not found.");
         }
-        filmStorage.update(film);
         film.getLikes().remove(userId);
+        filmStorage.update(film);
         log.info("Like to film with id = {} successfully removed", filmId);
     }
 

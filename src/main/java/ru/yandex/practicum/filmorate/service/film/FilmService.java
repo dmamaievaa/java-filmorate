@@ -10,12 +10,6 @@ public interface FilmService {
 
      Film getFilmById(int filmId);
 
-     List<Film> getAll();
-
-     Film add(Film film);
-
-     Film update(Film film);
-
      Film addLike(int userId, int filmId);
 
      void removeLike(int userId, int filmId);
