@@ -16,8 +16,8 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class FilmServiceImpl implements FilmService {
-    private FilmStorage filmStorage;
-    private UserStorage userStorage;
+    private final FilmStorage filmStorage;
+    private final UserStorage userStorage;
 
     public void addLike(Long id, Long userId) {
         Film film = filmStorage.getFilmById(id);
