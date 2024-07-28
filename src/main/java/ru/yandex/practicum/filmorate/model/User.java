@@ -12,7 +12,7 @@ import java.util.Set;
 
 @Data
 public class User {
-    private int id;
+    private Long id;
 
     @NotBlank(message = "Email cannot be blank")
     @Email(message = "Email should be valid")
@@ -27,7 +27,7 @@ public class User {
     @Past(message = "Birthday must be in the past")
     private LocalDate birthday;
 
-    public User(int id, String email, String login, String name, LocalDate birthday) {
+    public User(Long id, String email, String login, String name, LocalDate birthday) {
         this.id = id;
         this.email = email;
         this.login = login;
@@ -35,5 +35,5 @@ public class User {
         this.birthday = birthday;
     }
 
-    public final Set<Integer> friends = new HashSet<>();
+    private Set<Long> friends = new HashSet<>();
 }

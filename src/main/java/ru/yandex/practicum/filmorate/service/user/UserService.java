@@ -7,20 +7,15 @@ import java.util.List;
 
 @Service
 public interface UserService {
-
-    User getUserById(int userId);
-
-    List<User> getAll();
-
     User add(User user);
 
     User update(User user);
 
-    User addFriend(int userId, int friendId);
+    void addFriend(Long userId, Long friendId);
 
-    void deleteFriend(int userId, int friendId);
+    void deleteFriend(Long userId, Long friendId);
 
-    List<User> getFriends(int userId);
+    List<User> getFriends(Long userId);
 
-    List<User> getCommonFriends(int userId, int idToCheck);
+    List<User> getCommonFriends(Long userId, Long idToCheck);
 }

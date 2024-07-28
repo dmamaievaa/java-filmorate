@@ -8,11 +8,9 @@ import java.util.List;
 @Service
 public interface FilmService {
 
-     Film getFilmById(int filmId);
+     void addLike(Long userId, Long filmId);
 
-     Film addLike(int userId, int filmId);
+     void removeLike(Long userId, Long filmId);
 
-     void removeLike(int userId, int filmId);
-
-     List<Film> getPopular(int count);
+     List<Film> getPopular(Long count);
 }

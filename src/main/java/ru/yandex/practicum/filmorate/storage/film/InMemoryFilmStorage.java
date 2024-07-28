@@ -9,14 +9,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
 
-    private final Map<Integer, Film> films = new HashMap<>();
-    private int filmId = 1;
+    private final Map<Long, Film> films = new HashMap<>();
+    private Long filmId = 1L;
 
     @Override
     public List<Film> getAll() {
@@ -26,7 +25,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film add(Film film) {
         film.setId(filmId);
-        films.put(film.getId(), film);
+        films.put(filmId, film);
         filmId += 1;
         log.info("Film with id = {} was successfully added", film.getId());
         return film;
@@ -34,9 +33,9 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film update(Film film) {
-        int idFilm = film.getId();
-        if (films.containsKey(idFilm)) {
-            films.put(idFilm, film);
+        Long filmId = film.getId();
+        if (films.containsKey(filmId)) {
+            films.put(filmId, film);
             log.info("Film with id = {} was successfully updated", film.getId());
         } else {
             throw new NotFoundException("Cannot update film as it does not exist");
@@ -45,7 +44,15 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Optional<Film> getFilmById(int filmId) {
-        return Optional.ofNullable(films.get(filmId));
+    public Film getFilmById(Long id) {
+        log.trace("Starting search for film with id = {}", id);
+        Film film = films.get(id);
+        if (film == null) {
+            log.warn("Film with id = {} not found", id);
+            throw new NotFoundException(String.format("Film with id = %d not found", id));
+        } else {
+            log.trace("Film with id = {} found", id);
+            return film;
+        }
     }
 }

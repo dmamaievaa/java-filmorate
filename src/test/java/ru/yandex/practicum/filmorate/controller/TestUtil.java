@@ -6,7 +6,7 @@ import java.time.LocalDate;
 
 public class TestUtil {
     public static User createValidUser() {
-        return new User(0,
+        return new User(0L,
                 "user@example.com",
                 "userlogin",
                 "username",
@@ -14,7 +14,7 @@ public class TestUtil {
     }
 
     public static User createFirstUser() {
-        return new User(1,
+        return new User(1L,
                 "user1@example.com",
                 "user1",
                 "User One",
@@ -22,7 +22,7 @@ public class TestUtil {
     }
 
     public static User createSecondUser() {
-        return new User(2,
+        return new User(2L,
                 "user2@example.com",
                 "user2",
                 "User Two",
@@ -30,7 +30,7 @@ public class TestUtil {
     }
 
     public static User createThirdUser() {
-        return new User(3,
+        return new User(3L,
                 "user3@example.com",
                 "user3",
                 "User Three",

@@ -18,7 +18,7 @@ import java.util.Set;
 @Builder
 @Data
 public class Film {
-    private int id;
+    private Long id;
 
     @NotBlank(message = "Name cannot be blank")
     private String name;
@@ -36,5 +36,5 @@ public class Film {
     @EqualsAndHashCode.Exclude
     @JsonIgnore
     @Builder.Default
-    private Set<Integer> likes = new HashSet<>();
+    private Set<Long> likes = new HashSet<>();
 }

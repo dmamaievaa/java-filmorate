@@ -6,21 +6,19 @@ import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 @Slf4j
 @Component
 public class InMemoryUserStorage implements UserStorage {
-    private final Map<Integer, User> users = new HashMap<>();
-    private int userId = 1;
+    private final Map<Long, User> users = new HashMap<>();
+    private Long userId = 1L;
 
     @Override
-    public List<User> getAll() {
-        return new ArrayList<>(users.values());
+    public Collection<User> getAll() {
+        return users.values();
     }
 
     @Override
@@ -48,7 +46,7 @@ public class InMemoryUserStorage implements UserStorage {
         return user;
     }
 
-    private void checkUserLogin(Map<Integer, User> users, User user) {
+    private void checkUserLogin(Map<Long, User> users, User user) {
         for (User value : users.values()) {
             if (user.getLogin().equals(value.getLogin())) {
                 throw new ValidationException("User with this login is already registered");
@@ -57,7 +55,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public Optional<User> getUserById(int userId) {
-        return Optional.ofNullable(users.get(userId));
+    public User getUserById(Long userId) {
+        return users.get(userId);
     }
 }
