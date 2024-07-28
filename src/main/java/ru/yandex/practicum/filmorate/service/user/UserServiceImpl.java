@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -28,20 +29,38 @@ public class UserServiceImpl implements UserService {
     @Override
     public void addFriend(Long userId, Long friendId) {
         User user = userStorage.getUserById(userId);
+        if (user == null) {
+            throw new NotFoundException("User not found");
+        }
+
         User friend = userStorage.getUserById(friendId);
+        if (friend == null) {
+            throw new NotFoundException("Friend not found");
+        }
+
         user.getFriends().add(friendId);
         friend.getFriends().add(userId);
         log.info("Friend with id = {} successfully added", friendId);
     }
 
+
     @Override
     public void deleteFriend(Long userId, Long friendId) {
-        User user =  userStorage.getUserById(userId);
-        User friend =  userStorage.getUserById(friendId);
+        User user = userStorage.getUserById(userId);
+        if (user == null) {
+            throw new NotFoundException("User not found");
+        }
+
+        User friend = userStorage.getUserById(friendId);
+        if (friend == null) {
+            throw new NotFoundException("Friend not found");
+        }
+
         user.getFriends().remove(friendId);
         friend.getFriends().remove(userId);
         log.info("Friend with id = {} successfully removed", friendId);
     }
+
 
     @Override
     public List<User> getFriends(Long userId) {

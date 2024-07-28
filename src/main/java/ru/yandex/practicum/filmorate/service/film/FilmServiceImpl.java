@@ -36,10 +36,19 @@ public class FilmServiceImpl implements FilmService {
 
     public void removeLike(Long id, Long userId) {
         Film film = filmStorage.getFilmById(id);
+        if (film == null) {
+            throw new NotFoundException("Film not found");
+        }
+
         User user = userStorage.getUserById(userId);
+        if (user == null) {
+            throw new NotFoundException("User not found");
+        }
+
         film.getLikes().remove(user.getId());
         log.trace("User {} removed like from the film {}", user.getName(), film.getName());
     }
+
 
     @Override
     public List<Film> getPopular(Long count) {
