@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
@@ -195,4 +196,21 @@ class FilmControllerTest {
         assertNotNull(likedFilm);
         assertEquals(1, likedFilm.getLikes().size());
     }
+
+    @Test
+    void testAddLikeToNonexistentFilm() {
+        Long nonexistentFilmId = 999L;
+        userService.add(user1);
+
+        Exception exception = assertThrows(NotFoundException.class, () -> {
+            filmController.addLike(nonexistentFilmId, user1.getId());
+        });
+
+        String expectedMessage = "Film with id = " + nonexistentFilmId + " not found";
+        String actualMessage = exception.getMessage();
+        System.out.println(actualMessage);
+        assertEquals(actualMessage, expectedMessage);
+    }
+
+
 }
