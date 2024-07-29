@@ -15,9 +15,11 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class FilmServiceImpl implements FilmService {
+
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
 
+    @Override
     public void addLike(Long id, Long userId) {
         Film film = filmStorage.getFilmById(id);
         if (film == null) {
@@ -33,7 +35,7 @@ public class FilmServiceImpl implements FilmService {
         log.trace("User {} liked the film {}", user.getName(), film.getName());
     }
 
-
+    @Override
     public void removeLike(Long id, Long userId) {
         Film film = filmStorage.getFilmById(id);
         if (film == null) {
@@ -49,12 +51,26 @@ public class FilmServiceImpl implements FilmService {
         log.trace("User {} removed like from the film {}", user.getName(), film.getName());
     }
 
-
     @Override
     public List<Film> getPopular(Long count) {
         return filmStorage.getAll().stream()
                 .sorted((o1, o2) -> Long.compare(o2.getLikes().size(), o1.getLikes().size()))
                 .limit(count)
                 .toList();
+    }
+
+    @Override
+    public List<Film> getAll() {
+        return filmStorage.getAll();
+    }
+
+    @Override
+    public Film add(Film film) {
+        return filmStorage.add(film);
+    }
+
+    @Override
+    public Film update(Film film) {
+        return filmStorage.update(film);
     }
 }

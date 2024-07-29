@@ -27,7 +27,7 @@ class UserControllerTest {
     void setUp() {
         InMemoryUserStorage userStorage = new InMemoryUserStorage();
         userService = new UserServiceImpl(userStorage);
-        userController = new UserController(userService, userStorage);
+        userController = new UserController(userService);
         userValidator = new UserValidator();
         validUser = TestUtil.createValidUser();
         user1 = TestUtil.createFirstUser();

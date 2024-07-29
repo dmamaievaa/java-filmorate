@@ -46,11 +46,12 @@ public class InMemoryUserStorage implements UserStorage {
         return user;
     }
 
-    private void checkUserLogin(Map<Long, User> users, User user) {
-        for (User value : users.values()) {
-            if (user.getLogin().equals(value.getLogin())) {
-                throw new ValidationException("User with this login is already registered");
-            }
+    public void checkUserLogin(Map<Long, User> users, User user) {
+        boolean loginExists = users.values().stream()
+                .anyMatch(existingUser -> user.getLogin().equals(existingUser.getLogin()));
+
+        if (loginExists) {
+            throw new ValidationException("User with this login is already registered");
         }
     }
 

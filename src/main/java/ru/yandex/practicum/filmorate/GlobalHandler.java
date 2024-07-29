@@ -1,5 +1,7 @@
-package ru.yandex.practicum.filmorate.controller;
+package ru.yandex.practicum.filmorate;
 
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -8,7 +10,7 @@ import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 
 @RestControllerAdvice
-public class ErrorController {
+public class GlobalHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -22,15 +24,9 @@ public class ErrorController {
         return new ErrorResponse(e.getMessage());
     }
 
+    @AllArgsConstructor
+    @Getter
     public static class ErrorResponse {
         private final String error;
-
-        public ErrorResponse(String error) {
-            this.error = error;
-        }
-
-        public String getError() {
-            return error;
-        }
     }
 }
