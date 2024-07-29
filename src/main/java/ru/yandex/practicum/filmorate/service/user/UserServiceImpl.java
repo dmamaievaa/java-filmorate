@@ -32,7 +32,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User update(User user) {
-        if (!userStorage.getUserById(user.getId()).getLogin().equals(user.getLogin())) {
+        User existingUser = userStorage.getUserById(user.getId());
+        if (existingUser == null) {
+            throw new NotFoundException("User not found");
+        }
+        if (!existingUser.getLogin().equals(user.getLogin())) {
             checkUserLogin(user);
         }
         return userStorage.update(user);
