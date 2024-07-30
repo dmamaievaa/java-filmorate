@@ -8,12 +8,15 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
-import java.time.LocalDate;
 
-@Builder
+
+import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
+
 @Data
 public class Film {
-    private int id;
+    private Long id;
 
     @NotBlank(message = "Name cannot be blank")
     private String name;
@@ -27,4 +30,16 @@ public class Film {
 
     @Positive(message = "Duration must be positive")
     private long duration;
+
+    private Set<Long> likes;
+
+    @Builder
+    public Film(Long id, String name, String description, LocalDate releaseDate, long duration, Set<Long> likes) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.releaseDate = releaseDate;
+        this.duration = duration;
+        this.likes = likes != null ? likes : new HashSet<>();
+    }
 }

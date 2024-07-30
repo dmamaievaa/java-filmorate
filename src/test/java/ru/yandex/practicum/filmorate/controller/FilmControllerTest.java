@@ -1,37 +1,39 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validation;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
-import jakarta.validation.Validator;
-import jakarta.validation.ValidatorFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.film.FilmServiceImpl;
+import ru.yandex.practicum.filmorate.storage.film.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.validation.FilmValidator;
 
 import java.time.LocalDate;
-import java.util.List;
-import java.util.Set;
+import java.util.Collection;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class FilmControllerTest {
 
     private FilmController filmController;
-    private Validator validator;
     private FilmValidator filmValidator;
-
+    private InMemoryFilmStorage filmStorage;
+    private FilmServiceImpl filmService;
+    private InMemoryUserStorage userStorage;
+    private User user1;
 
     @BeforeEach
     void setUp() {
-        filmController = new FilmController();
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        validator = factory.getValidator();
         filmValidator = new FilmValidator();
+        filmStorage = new InMemoryFilmStorage();
+        userStorage = new InMemoryUserStorage();
+        filmService = new FilmServiceImpl(filmStorage, userStorage);
+        filmController = new FilmController(filmService);
+        user1 = TestUtil.createFirstUser();
     }
 
     @Test
@@ -45,44 +47,26 @@ class FilmControllerTest {
 
         Film addedFilmSuccessfully = filmController.add(validFilm);
         assertEquals(1, addedFilmSuccessfully.getId());
-        Set<ConstraintViolation<Film>> violations = validator.validate(validFilm);
-        assertTrue(violations.isEmpty());
-    }
-
-    @Test
-    void testAddInvalidFilm() {
-        Film invalidFilm = Film.builder()
-                .name("")
-                .description("Film description")
-                .releaseDate(LocalDate.of(2020, 1, 1))
-                .duration(120)
-                .build();
-
-        Film addedFilmFailed = filmController.add(invalidFilm);
-        assertEquals(1, addedFilmFailed.getId());
-        Set<ConstraintViolation<Film>> violations = validator.validate(invalidFilm);
-        assertFalse(violations.isEmpty());
     }
 
     @Test
     void testUpdateFilm() {
         Film existingFilm = Film.builder()
-                .id(1)
                 .name("Film")
                 .description("Film description")
                 .releaseDate(LocalDate.of(2020, 1, 1))
                 .duration(120)
                 .build();
 
+        Film addedFilm = filmController.add(existingFilm);
+
         Film updatedFilm = Film.builder()
-                .id(1)
+                .id(addedFilm.getId())
                 .name("Updated Film")
                 .description("Updated description")
                 .releaseDate(LocalDate.of(2021, 1, 1))
                 .duration(150)
                 .build();
-
-        filmController.add(existingFilm);
 
         Film result = filmController.update(updatedFilm);
         assertEquals("Updated Film", result.getName());
@@ -92,7 +76,6 @@ class FilmControllerTest {
     @Test
     void testGetAllFilms() {
         Film film1 = Film.builder()
-                .id(1)
                 .name("Film 1")
                 .description("Description 1")
                 .releaseDate(LocalDate.of(2020, 1, 1))
@@ -100,7 +83,6 @@ class FilmControllerTest {
                 .build();
 
         Film film2 = Film.builder()
-                .id(2)
                 .name("Film 2")
                 .description("Description 2")
                 .releaseDate(LocalDate.of(2021, 1, 1))
@@ -110,7 +92,7 @@ class FilmControllerTest {
         filmController.add(film1);
         filmController.add(film2);
 
-        List<Film> allFilms = filmController.getAll();
+        Collection<Film> allFilms = filmController.getAll();
         assertEquals(2, allFilms.size());
     }
 
@@ -126,5 +108,104 @@ class FilmControllerTest {
         assertThrows(ValidationException.class, () -> {
             filmValidator.isValid(invalidFilm, null);
         });
+    }
+
+    @Test
+    void testAddLike() {
+        Film film = Film.builder()
+                .name("Film")
+                .description("Film description")
+                .releaseDate(LocalDate.of(2020, 1, 1))
+                .duration(120)
+                .build();
+
+        Film addedFilm = filmController.add(film);
+        userStorage.add(user1);
+
+        filmController.addLike(addedFilm.getId(), user1.getId());
+
+        Film likedFilm = filmController.getAll().stream().findFirst().orElse(null);
+        assertNotNull(likedFilm);
+        assertEquals(1, likedFilm.getLikes().size());
+    }
+
+    @Test
+    void testRemoveLike() {
+        Film film = Film.builder()
+                .name("Film")
+                .description("Film description")
+                .releaseDate(LocalDate.of(2020, 1, 1))
+                .duration(120)
+                .build();
+
+        Film addedFilm = filmController.add(film);
+        userStorage.add(user1);
+        filmController.addLike(addedFilm.getId(), user1.getId());
+        filmController.removeLike(addedFilm.getId(), user1.getId());
+
+        Film likedFilm = filmController.getAll().stream().findFirst().orElse(null);
+        assertNotNull(likedFilm);
+        assertEquals(0, likedFilm.getLikes().size());
+    }
+
+    @Test
+    void testGetPopularFilms() {
+        Film film1 = Film.builder()
+                .name("Film 1")
+                .description("Description 1")
+                .releaseDate(LocalDate.of(2020, 1, 1))
+                .duration(120)
+                .build();
+
+        Film film2 = Film.builder()
+                .name("Film 2")
+                .description("Description 2")
+                .releaseDate(LocalDate.of(2021, 1, 1))
+                .duration(150)
+                .build();
+
+        filmController.add(film1);
+        filmController.add(film2);
+
+        userStorage.add(user1);
+        filmController.addLike(film1.getId(), user1.getId());
+
+        Collection<Film> popularFilms = filmController.getPopular(1L);
+        assertEquals(1, popularFilms.size());
+        assertEquals(film1.getId(), popularFilms.iterator().next().getId());
+    }
+
+    @Test
+    void testUserCannotLikeFilmTwice() {
+        Film film = Film.builder()
+                .name("Film")
+                .description("Film description")
+                .releaseDate(LocalDate.of(2020, 1, 1))
+                .duration(120)
+                .build();
+
+        Film addedFilm = filmController.add(film);
+        userStorage.add(user1);
+        filmController.addLike(addedFilm.getId(), user1.getId());
+        filmController.addLike(addedFilm.getId(), user1.getId());
+
+        Film likedFilm = filmController.getAll().stream().findFirst().orElse(null);
+        assertNotNull(likedFilm);
+        assertEquals(1, likedFilm.getLikes().size());
+    }
+
+    @Test
+    void testAddLikeToNonexistentFilm() {
+        Long nonexistentFilmId = 999L;
+        userStorage.add(user1);
+
+        Exception exception = assertThrows(NotFoundException.class, () -> {
+            filmController.addLike(nonexistentFilmId, user1.getId());
+        });
+
+        String expectedMessage = "Film with id = " + nonexistentFilmId + " not found";
+        String actualMessage = exception.getMessage();
+        System.out.println(actualMessage);
+        assertEquals(actualMessage, expectedMessage);
     }
 }

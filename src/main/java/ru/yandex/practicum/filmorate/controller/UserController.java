@@ -1,57 +1,58 @@
 package ru.yandex.practicum.filmorate.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.user.UserService;
 import ru.yandex.practicum.filmorate.validation.ValidUser;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
-@RequestMapping("/users")
-@RestController
 @Slf4j
+@RestController
+@RequestMapping("/users")
+@RequiredArgsConstructor
 public class UserController {
 
-    private final Map<Integer, User> users = new HashMap<>();
-    private Integer userId = 1;
+    private final UserService userService;
+    private final String friendPath = "/{id}/friends/{friend-id}";
+    private final String friendIdPath = "friend-id";
 
     @GetMapping
-    public List<User> getAll() {
-        return new ArrayList<>(users.values());
+    public Collection<User> getAll() {
+        return userService.getAll();
     }
 
     @PostMapping
     public User add(@ValidUser @RequestBody User user) {
-        user.setId(userId++);
-        checkUserLogin(user);
-        users.put(user.getId(), user);
-        log.info("User with id {} successfully added", user.getId());
-        return user;
+        return userService.add(user);
     }
 
     @PutMapping
-    public User update(@ValidUser @RequestBody User user) {
-        if (users.containsKey(user.getId())) {
-            checkUserLogin(user);
-            users.put(user.getId(), user);
-            log.info("User with id {} successfully updated", user.getId());
-        } else {
-            log.warn("User with id {} not found for update", user.getId());
-            throw new ValidationException("Cannot update user, no user with such id");
-        }
-        return user;
+    public User update(@ValidUser @RequestBody User newUser) {
+        return userService.update(newUser);
     }
 
-    private void checkUserLogin(User user) {
-        for (User existingUser : users.values()) {
-            if (user.getLogin().equals(existingUser.getLogin())) {
-                log.warn("User with login {} already registered", user.getLogin());
-                throw new ValidationException("User with such login already registered");
-            }
-        }
+    @PutMapping(friendPath)
+    public void addFriend(@PathVariable long id, @PathVariable(friendIdPath) long friendId) {
+        userService.addFriend(id, friendId);
+    }
+
+    @DeleteMapping(friendPath)
+    public void deleteFriend(@PathVariable long id, @PathVariable(friendIdPath) long friendId) {
+        userService.deleteFriend(id, friendId);
+    }
+
+    @GetMapping("{id}/friends")
+    public List<User> getFriends(@PathVariable long id) {
+        return userService.getFriends(id);
+    }
+
+    @GetMapping("{id}/friends/common/{other-id}")
+    public List<User> getCommonFriends(@PathVariable long id,
+                                       @PathVariable("other-id") long otherId) {
+        return userService.getCommonFriends(id, otherId);
     }
 }

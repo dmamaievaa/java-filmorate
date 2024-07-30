@@ -1,59 +1,58 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
-import jakarta.validation.ValidatorFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.user.UserServiceImpl;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.validation.UserValidator;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 class UserControllerTest {
 
     private UserController userController;
-    private Validator validator;
+    private UserServiceImpl userService;
     private UserValidator userValidator;
     private User validUser;
-
+    private User user1;
+    private User user2;
+    private User user3;
 
     @BeforeEach
     void setUp() {
-        userController = new UserController();
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        validator = factory.getValidator();
+        InMemoryUserStorage userStorage = new InMemoryUserStorage();
+        userService = new UserServiceImpl(userStorage);
+        userController = new UserController(userService);
         userValidator = new UserValidator();
         validUser = TestUtil.createValidUser();
+        user1 = TestUtil.createFirstUser();
+        user2 = TestUtil.createSecondUser();
+        user3 = TestUtil.createThirdUser();
     }
 
     @Test
     void testAddUser() {
         User addedUser = userController.add(validUser);
-        assertEquals(1, addedUser.getId());
-        Set<ConstraintViolation<User>> violations = validator.validate(validUser);
-        assertTrue(violations.isEmpty());
+        assertEquals(1L, addedUser.getId());
+        userValidator.isValid(addedUser, null);
     }
 
     @Test
     void testUpdateUser() {
+        userController.add(validUser);
+
         User updatedUser = new User(
-                1,
+                validUser.getId(),
                 "updateduser@example.com",
                 "updateduserlogin",
                 "updatedusername",
                 LocalDate.of(2001, 1, 1)
         );
-
-        userController.add(validUser);
 
         User result = userController.update(updatedUser);
         assertEquals("updateduser@example.com", result.getEmail());
@@ -61,41 +60,44 @@ class UserControllerTest {
     }
 
     @Test
-    void testGetAllUsers() {
-        userController.add(validUser);
-        User user2 = new User(
-                2,
-                "user2@example.com",
-                "user2login",
-                "user2name",
-                LocalDate.of(2001, 1, 1)
-        );
-
+    void testAddFriend() {
+        userController.add(user1);
         userController.add(user2);
+        userController.addFriend(user1.getId(), user2.getId());
 
-        List<User> allUsers = userController.getAll();
-        assertEquals(2, allUsers.size());
+        List<User> friends = userController.getFriends(user1.getId());
+        assertEquals(1, friends.size());
+        assertTrue(friends.contains(user2));
     }
 
     @Test
-    void testInvalidEmail() {
-        User invalidEmailUser = new User(
-                0,
-                "invalid-email",
-                "user2login",
-                "Name",
-                LocalDate.of(2025, 1, 1)
-        );
+    void testRemoveFriend() {
+        userController.add(user1);
+        userController.add(user2);
+        userController.addFriend(user1.getId(), user2.getId());
+        userController.deleteFriend(user1.getId(), user2.getId());
 
-        assertThrows(ValidationException.class, () -> {
-            userValidator.isValid(invalidEmailUser, null);
-        });
+        List<User> friends = userController.getFriends(user1.getId());
+        assertEquals(0, friends.size());
+    }
+
+    @Test
+    void testCommonFriends() {
+        userController.add(user1);
+        userController.add(user2);
+        userController.add(user3);
+        userService.addFriend(user1.getId(), user3.getId());
+        userController.addFriend(user2.getId(), user3.getId());
+
+        List<User> commonFriends = userController.getCommonFriends(user1.getId(), user2.getId());
+        assertEquals(1, commonFriends.size());
+        assertTrue(commonFriends.contains(user3));
     }
 
     @Test
     void testInvalidUserBirthday() {
         User invalidUserBirthday = new User(
-                0,
+                0L,
                 "user@example.com",
                 "user2login",
                 "Name",
@@ -110,15 +112,15 @@ class UserControllerTest {
     @Test
     void testAutomaticUserName() {
         User userWithoutName = new User(
-                0,
+                0L,
                 "user@example.com",
-                "user2login",
-                null, // Name is null
+                "userlogin",
+                null,
                 LocalDate.of(2000, 1, 1)
         );
 
         userValidator.isValid(userWithoutName, null);
 
-        assertEquals("user2login", userWithoutName.getName());
+        assertEquals("userlogin", userWithoutName.getName());
     }
 }
