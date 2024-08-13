@@ -2,8 +2,15 @@ DROP TABLE IF EXISTS genres;
 DROP TABLE IF EXISTS likes;
 DROP TABLE IF EXISTS friends;
 DROP TABLE IF EXISTS film_genre;
+DROP TABLE IF EXISTS mpa;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS films;
+
+CREATE TABLE IF NOT EXISTS mpa
+(
+    id   BIGINT primary key auto_increment,
+    name varchar NOT NULL
+);
 
 CREATE TABLE IF NOT EXISTS films
 (
@@ -11,7 +18,8 @@ CREATE TABLE IF NOT EXISTS films
     name         varchar      NOT NULL,
     description  varchar(200) NOT NULL,
     release_date date         NOT NULL,
-    duration     int          NOT NULL
+    duration     int          NOT NULL,
+    mpa_id       bigint       NOT NULL REFERENCES mpa (id)
     );
 
 CREATE TABLE IF NOT EXISTS users

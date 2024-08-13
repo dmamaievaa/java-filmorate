@@ -1,6 +1,14 @@
 INSERT INTO film_genre (name)
-VALUES ('Action'),
-       ('Adventure'),
-       ('Fantasy'),
+VALUES ('Comedy'),
        ('Drama'),
-       ('Comedy');
+       ('Animation'),
+       ('Thriller'),
+       ('Documentary'),
+       ('Action');
+
+INSERT INTO mpa (name)
+VALUES ('G'),
+       ('PG'),
+       ('PG-13'),
+       ('R'),
+       ('NC-17');

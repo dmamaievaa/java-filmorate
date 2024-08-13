@@ -39,9 +39,12 @@ public class Film {
     @Builder.Default
     private List<FilmGenre> filmGenre = new ArrayList<>();
 
+    @NotNull
+    private Mpa mpa;
+
     @Builder
     public Film(Long id, String name, String description, LocalDate releaseDate, long duration, Set<Long> likes,
-                List<FilmGenre> filmGenre) {
+                List<FilmGenre> filmGenre, Mpa mpa) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -49,5 +52,6 @@ public class Film {
         this.duration = duration;
         this.likes = likes != null ? likes : new HashSet<>();
         this.filmGenre = filmGenre;
+        this.mpa = mpa;
     }
 }
