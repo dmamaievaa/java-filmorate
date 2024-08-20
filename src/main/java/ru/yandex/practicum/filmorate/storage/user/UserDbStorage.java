@@ -55,17 +55,6 @@ public class UserDbStorage implements UserStorage {
         return jdbc.query(SQL_USERS_SELECT_ALL, userRowMapper);
     }
 
-    /*@Override
-    public User add(User user) {
-        SqlParameterSource params = new MapSqlParameterSource()
-                .addValue("email", user.getEmail())
-                .addValue("login", user.getLogin())
-                .addValue("name", user.getName())
-                .addValue("birthday", user.getBirthday());
-
-        jdbc.update(SQL_USERS_INSERT, params);
-        return user;
-    }*/
   public User add(User user) {
      String sql = "INSERT INTO users (email, login, name, birthday) VALUES (:email, :login, :name, :birthday)";
 
@@ -125,15 +114,27 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void deleteFriend(Long userId, Long friendId) {
+        if (!userExists(userId)) {
+            throw new NotFoundException(String.format("User with ID %d not found", userId));
+        }
+        if (!userExists(friendId)) {
+            throw new NotFoundException(String.format("Friend with ID %d not found", friendId));
+        }
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("userId", userId)
                 .addValue("friendId", friendId);
 
-        jdbc.update(SQL_DELETE_FRIEND, params);
+        int rowsAffected = jdbc.update(SQL_DELETE_FRIEND, params);
+        if (rowsAffected == 0) {
+            throw new NotFoundException(String.format("No friendship found between user %d and friend %d", userId, friendId));
+        }
     }
 
     @Override
     public List<User> getFriendsByUserId(Long id) {
+        if (!userExists(id)) {
+            throw new NotFoundException(String.format("User with ID %d not found", id));
+        }
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("userId", id);
 

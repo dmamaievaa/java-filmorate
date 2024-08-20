@@ -78,6 +78,9 @@ public class FilmDbStorage implements FilmStorage {
         jdbc.update(SQL_FILMS_INSERT, params, keyHolder);
         Long filmId = keyHolder.getKey().longValue();
         film.setId(filmId);
+        if (film.getFilmGenre() != null && !film.getFilmGenre().isEmpty()) {
+            filmGenreStorage.addGenresToFilm(film, film.getFilmGenre());
+        }
         return film;
     }
 
@@ -95,6 +98,7 @@ public class FilmDbStorage implements FilmStorage {
         if (rowsUpdated == 0) {
             throw new NotFoundException("Cannot update film as it does not exist");
         }
+        filmGenreStorage.addGenresToFilm(film, film.getFilmGenre());
         return film;
     }
 
@@ -130,7 +134,14 @@ public class FilmDbStorage implements FilmStorage {
         SqlParameterSource params = new MapSqlParameterSource()
                 .addValue("id", filmId);
 
-        return jdbc.queryForObject(SQL_FILMS_SELECT_BY_ID, params, filmMapper);
+        Film film = jdbc.queryForObject(SQL_FILMS_SELECT_BY_ID, params, filmMapper);
+
+        filmGenreStorage.load(List.of(film));
+
+        Set<Long> likes = likesStorage.getLikesByFilmId(filmId);
+        film.setLikes(likes);
+
+        return film;
     }
 
     private final RowMapper<Film> filmMapper = new RowMapper<>() {
