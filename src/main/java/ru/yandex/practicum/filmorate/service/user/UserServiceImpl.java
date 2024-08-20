@@ -43,8 +43,6 @@ public class UserServiceImpl implements UserService {
         return userStorage.update(user);
     }
 
-    //private final FriendsDbStorage friendsStorage;
-
     @Override
     public void addFriend(Long userId, Long friendId) {
         userStorage.addFriend(userId, friendId);

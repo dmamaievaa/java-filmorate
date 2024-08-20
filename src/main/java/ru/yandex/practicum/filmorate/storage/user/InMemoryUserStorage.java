@@ -84,11 +84,14 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public List<User> getFriendsByUserId(Long id) {
+        User user = getUserById(id);
+        if (user == null) {
+            throw new NotFoundException("User with id = " + id + " not found");
+        }
         return getAll().stream()
-                .filter(user -> user.getFriends().contains(id))
+                .filter(u -> user.getFriends().contains(u.getId()))
                 .collect(Collectors.toList());
     }
-
 
     @Override
     public User getUserById(Long userId) {
