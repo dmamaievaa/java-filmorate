@@ -49,7 +49,7 @@ public class FilmGenreDbStorageTest {
 
         film.getFilmGenre().add(FilmGenre.builder()
                 .id(1L)
-                .name("Comedy")
+                .name("Комедия")
                 .build());
 
         assertEquals(1, film.getFilmGenre().size());
@@ -58,7 +58,7 @@ public class FilmGenreDbStorageTest {
     @Test
     void shouldGetGenreForId() {
         FilmGenre genreTest = genreService.getGenreById(1L);
-        assertEquals("Comedy", genreTest.getName());
+        assertEquals("Комедия", genreTest.getName());
     }
 
     @Test
@@ -68,13 +68,13 @@ public class FilmGenreDbStorageTest {
         filmDbStorage.add(film);
         film.getFilmGenre().add(FilmGenre.builder()
                 .id(1L)
-                .name("Comedy")
+                .name("Комедия")
                 .build());
         filmGenreDbStorage.addGenresToFilm(film, film.getFilmGenre());
 
         Set<FilmGenre> genresFromDb = filmGenreDbStorage.getGenresByFilmId(film.getId());
         assertEquals(1, genresFromDb.size());
-        assertEquals("Comedy", genresFromDb.iterator().next().getName());
+        assertEquals("Комедия", genresFromDb.iterator().next().getName());
     }
 
     @Test
@@ -84,18 +84,18 @@ public class FilmGenreDbStorageTest {
         filmGenreDbStorage.addGenresToFilm(film, Set.of(
                 FilmGenre.builder()
                         .id(1L)
-                        .name("Comedy")
+                        .name("Комедия")
                         .build()));
 
         film.getFilmGenre().clear();
         film.getFilmGenre().add(FilmGenre.builder()
                 .id(2L)
-                .name("Drama")
+                .name("Драма")
                 .build());
         filmGenreDbStorage.addGenresToFilm(film, film.getFilmGenre());
 
         Set<FilmGenre> genresFromDb = filmGenreDbStorage.getGenresByFilmId(film.getId());
         assertEquals(1, genresFromDb.size());
-        assertEquals("Drama", genresFromDb.iterator().next().getName());
+        assertEquals("Драма", genresFromDb.iterator().next().getName());
     }
 }

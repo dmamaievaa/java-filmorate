@@ -1,10 +1,10 @@
 INSERT INTO film_genre (name)
-VALUES ('Comedy'),
-       ('Drama'),
-       ('Animation'),
-       ('Thriller'),
-       ('Documentary'),
-       ('Action');
+VALUES ('Комедия'),
+       ('Драма'),
+       ('Мультфильм'),
+       ('Триллер'),
+       ('Документальный'),
+       ('Боевик');
 
 INSERT INTO mpa (name)
 VALUES ('G'),
