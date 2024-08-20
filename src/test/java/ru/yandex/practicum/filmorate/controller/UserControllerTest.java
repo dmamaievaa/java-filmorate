@@ -37,14 +37,14 @@ class UserControllerTest {
     }
 
     @Test
-    void testAddUser() {
+    void shouldAddUser() {
         User addedUser = userController.add(validUser);
         assertEquals(1L, addedUser.getId());
         userValidator.isValid(addedUser, null);
     }
 
     @Test
-    void testUpdateUser() {
+    void shouldUpdateUser() {
         userController.add(validUser);
 
         User updatedUser = new User(
@@ -62,7 +62,7 @@ class UserControllerTest {
     }
 
     @Test
-    void testAddFriend() {
+    void shouldAddFriend() {
         userController.add(user1);
         userController.add(user2);
         userController.addFriend(user1.getId(), user2.getId());
@@ -73,7 +73,7 @@ class UserControllerTest {
     }
 
     @Test
-    void testRemoveFriend() {
+    void shouldRemoveFriend() {
         userController.add(user1);
         userController.add(user2);
         userController.addFriend(user1.getId(), user2.getId());
@@ -84,7 +84,7 @@ class UserControllerTest {
     }
 
     @Test
-    void testCommonFriends() {
+    void shoulReturnCommonFriends() {
         userController.add(user1);
         userController.add(user2);
         userController.add(user3);
@@ -97,7 +97,7 @@ class UserControllerTest {
     }
 
     @Test
-    void testInvalidUserBirthday() {
+    void shouldThrowErrorOnInvalidUserBirthday() {
         User invalidUserBirthday = new User(
                 0L,
                 "user@example.com",
@@ -107,13 +107,11 @@ class UserControllerTest {
                 new HashSet<>()
         );
 
-        assertThrows(ValidationException.class, () -> {
-            userValidator.isValid(invalidUserBirthday, null);
-        });
+        assertThrows(ValidationException.class, () -> userValidator.isValid(invalidUserBirthday, null));
     }
 
     @Test
-    void testAutomaticUserName() {
+    void shouldSetAutomaticUserName() {
         User userWithoutName = new User(
                 0L,
                 "user@example.com",

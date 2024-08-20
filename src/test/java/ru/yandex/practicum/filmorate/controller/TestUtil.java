@@ -12,7 +12,7 @@ public class TestUtil {
                 "userlogin",
                 "username",
                 LocalDate.of(2000, 1, 1),
-                new HashSet<>() );
+                new HashSet<>());
     }
 
     public static User createFirstUser() {
@@ -21,7 +21,7 @@ public class TestUtil {
                 "user1",
                 "User One",
                 LocalDate.of(1990, 1, 1),
-                new HashSet<>() );
+                new HashSet<>());
     }
 
     public static User createSecondUser() {
@@ -30,7 +30,7 @@ public class TestUtil {
                 "user2",
                 "User Two",
                 LocalDate.of(1990, 1, 1),
-                new HashSet<>() );
+                new HashSet<>());
     }
 
     public static User createThirdUser() {
@@ -39,6 +39,6 @@ public class TestUtil {
                 "user3",
                 "User Three",
                 LocalDate.of(1990, 1, 1),
-                new HashSet<>() );
+                new HashSet<>());
     }
 }

@@ -29,6 +29,7 @@ public class FilmGenreDbStorageTest {
     private final FilmDbStorage filmDbStorage;
     private final FilmGenreService genreService;
     private final FilmGenreDbStorage filmGenreDbStorage;
+
     private Film film;
 
     @BeforeEach
@@ -36,51 +37,56 @@ public class FilmGenreDbStorageTest {
         film = TestUtil.createFilm("Gone with the wind", LocalDate.of(1939, 8, 17), 136, 1, "NC-17");
     }
 
-
     @Test
-    void getAllGenre() {
+    void shouldGetAllGenres() {
         Collection<FilmGenre> genres = genreService.getAll();
         assertEquals(6, genres.size());
     }
 
     @Test
-    void setFilmGenre() {
+    void shouldSetFilmGenre() {
         assertTrue(film.getFilmGenre().isEmpty());
+
         film.getFilmGenre().add(FilmGenre.builder()
                 .id(1L)
                 .name("Comedy")
                 .build());
+
         assertEquals(1, film.getFilmGenre().size());
     }
 
     @Test
-    void getGenreForId() {
+    void shouldGetGenreForId() {
         FilmGenre genreTest = genreService.getGenreById(1L);
         assertEquals("Comedy", genreTest.getName());
     }
 
     @Test
-    void addGenre() {
+    void shouldAddGenre() {
         assertTrue(film.getFilmGenre().isEmpty());
+
         filmDbStorage.add(film);
         film.getFilmGenre().add(FilmGenre.builder()
                 .id(1L)
                 .name("Comedy")
                 .build());
         filmGenreDbStorage.addGenresToFilm(film, film.getFilmGenre());
+
         Set<FilmGenre> genresFromDb = filmGenreDbStorage.getGenresByFilmId(film.getId());
         assertEquals(1, genresFromDb.size());
         assertEquals("Comedy", genresFromDb.iterator().next().getName());
     }
 
     @Test
-    void updateGenre() {
+    void shouldUpdateGenre() {
         filmDbStorage.add(film);
+
         filmGenreDbStorage.addGenresToFilm(film, Set.of(
                 FilmGenre.builder()
                         .id(1L)
                         .name("Comedy")
                         .build()));
+
         film.getFilmGenre().clear();
         film.getFilmGenre().add(FilmGenre.builder()
                 .id(2L)

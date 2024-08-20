@@ -24,10 +24,12 @@ import static org.junit.jupiter.api.Assertions.*;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class FilmDbStorageTest {
+
     private final FilmDbStorage filmDbStorage;
     private final FilmService filmService;
     private final UserDbStorage userDbStorage;
     private final LikesDbStorage likeDbStorage;
+
     private Film film;
     private Film film2;
     private User user;
@@ -41,16 +43,14 @@ class FilmDbStorageTest {
         user2 = TestUtil.createUser("user1@example.com", "user1", LocalDate.of(1995, 11, 15));
     }
 
-
     @Test
-    void addFilmTest() {
+    void shouldAddFilm() {
         filmDbStorage.add(film);
-
         assertEquals(film, filmDbStorage.getFilmById(film.getId()));
     }
 
     @Test
-    void updateFilmTest() {
+    void shouldUpdateFilm() {
         filmDbStorage.add(film);
         assertEquals(film, filmDbStorage.getFilmById(film.getId()));
 
@@ -60,7 +60,7 @@ class FilmDbStorageTest {
     }
 
     @Test
-    void likeAndDeleteLikeTest() {
+    void shouldLikeAndDeleteLike() {
         filmDbStorage.add(film);
         userDbStorage.add(user);
         userDbStorage.add(user2);
@@ -75,7 +75,7 @@ class FilmDbStorageTest {
     }
 
     @Test
-    void getRatingTest() {
+    void shouldGetRating() {
         filmDbStorage.add(film);
         userDbStorage.add(user);
         userDbStorage.add(user2);
@@ -87,5 +87,4 @@ class FilmDbStorageTest {
 
         assertEquals(filmId, popularFilms.getFirst().getId());
     }
-
 }

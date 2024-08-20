@@ -20,12 +20,10 @@ import static org.junit.jupiter.api.Assertions.*;
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-
 public class MpaDbStorageTest {
 
-
     private final MpaDbStorage mpaDbStorage;
-    Film film;
+    private Film film;
 
     @BeforeEach
     void setUp() {
@@ -33,19 +31,19 @@ public class MpaDbStorageTest {
     }
 
     @Test
-    void getAllMpa() {
+    void shouldGetAllMpa() {
         Collection<Mpa> mpa = mpaDbStorage.getAllMpa();
         assertEquals(5, mpa.size());
     }
 
     @Test
-    void getMpaById() {
+    void shouldGetMpaById() {
         Mpa mpaTest = mpaDbStorage.getMpaById(2);
         assertEquals("PG", mpaTest.getName());
     }
 
     @Test
-    void addMpaToFilm() {
+    void shouldAddMpaToFilm() {
         film.setMpa(Mpa.builder()
                 .id(1)
                 .name("PG-13")

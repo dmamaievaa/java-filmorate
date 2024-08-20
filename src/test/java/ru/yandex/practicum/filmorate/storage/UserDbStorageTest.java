@@ -22,14 +22,16 @@ import static org.junit.jupiter.api.Assertions.*;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 class UserDbStorageTest {
+
     private final UserDbStorage userDbStorage;
     private final NamedParameterJdbcOperations namedParameterJdbcOperations;
+
     private User user;
-    User friend;
-    User commonFriend;
+    private User friend;
+    private User commonFriend;
 
     @BeforeEach
-    public void setUp() {
+    void setUp() {
         namedParameterJdbcOperations.update("DELETE FROM friends", new MapSqlParameterSource());
         namedParameterJdbcOperations.update("DELETE FROM users", new MapSqlParameterSource());
 
@@ -41,14 +43,14 @@ class UserDbStorageTest {
         user.setFriends(new HashSet<>());
 
         friend = User.builder()
-                .email("user@example.com")
+                .email("user1@example.com")
                 .login("user1")
                 .birthday(LocalDate.of(1990, 1, 1))
                 .build();
         friend.setFriends(new HashSet<>());
 
         commonFriend = User.builder()
-                .email("user@example.com")
+                .email("user2@example.com")
                 .login("user2")
                 .birthday(LocalDate.of(1990, 1, 1))
                 .build();
@@ -58,22 +60,21 @@ class UserDbStorageTest {
     @Test
     void shouldCreateAndGetUser() {
         userDbStorage.add(user);
+
         assertEquals(user, userDbStorage.getUserById(user.getId()));
         assertEquals(user.getLogin(), userDbStorage.getUserById(user.getId()).getName());
-
         assertEquals(1, userDbStorage.getAll().size());
-        assertEquals(user, userDbStorage.getUserById(user.getId()));
     }
 
     @Test
     void shouldUpdateAndGetUser() {
         userDbStorage.add(user);
+
         user.setEmail("updated@example.com");
         userDbStorage.update(user);
-        assertEquals(user, userDbStorage.getUserById(user.getId()));
 
-        assertEquals(1, userDbStorage.getAll().size());
         assertEquals(user, userDbStorage.getUserById(user.getId()));
+        assertEquals(1, userDbStorage.getAll().size());
     }
 
     @Test
@@ -105,6 +106,7 @@ class UserDbStorageTest {
         userDbStorage.add(commonFriend);
         userDbStorage.addFriend(user.getId(), commonFriend.getId());
         userDbStorage.addFriend(friend.getId(), commonFriend.getId());
-        assertSame(userDbStorage.getCommonFriends(user.getId(), friend.getId()).getFirst().getId(), commonFriend.getId());
+
+        assertEquals(commonFriend.getId(), userDbStorage.getCommonFriends(user.getId(), friend.getId()).getFirst().getId());
     }
 }
