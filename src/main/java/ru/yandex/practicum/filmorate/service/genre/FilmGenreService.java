@@ -7,6 +7,8 @@ import java.util.Set;
 
 public interface FilmGenreService {
     Collection<FilmGenre> getAll();
+
     FilmGenre getGenreById(Long genreId);
+
     Set<FilmGenre> getGenresByFilmId(Long id);
 }
