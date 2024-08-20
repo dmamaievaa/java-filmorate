@@ -11,9 +11,7 @@ import jakarta.validation.constraints.Size;
 
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Builder
@@ -37,14 +35,20 @@ public class Film {
     private Set<Long> likes;
 
     @Builder.Default
-    private List<FilmGenre> filmGenre = new ArrayList<>();
+    private Set<FilmGenre> filmGenre = new HashSet<>();
 
     @NotNull
     private Mpa mpa;
 
     @Builder
-    public Film(Long id, String name, String description, LocalDate releaseDate, long duration, Set<Long> likes,
-                List<FilmGenre> filmGenre, Mpa mpa) {
+    public Film(Long id,
+                String name,
+                String description,
+                LocalDate releaseDate,
+                long duration,
+                Set<Long> likes,
+                Set<FilmGenre> filmGenre,
+                Mpa mpa) {
         this.id = id;
         this.name = name;
         this.description = description;

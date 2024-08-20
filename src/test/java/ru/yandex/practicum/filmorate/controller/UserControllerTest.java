@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.validation.UserValidator;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -51,7 +52,8 @@ class UserControllerTest {
                 "updateduser@example.com",
                 "updateduserlogin",
                 "updatedusername",
-                LocalDate.of(2001, 1, 1)
+                LocalDate.of(2001, 1, 1),
+                new HashSet<>()
         );
 
         User result = userController.update(updatedUser);
@@ -86,7 +88,7 @@ class UserControllerTest {
         userController.add(user1);
         userController.add(user2);
         userController.add(user3);
-        userService.addFriend(user1.getId(), user3.getId());
+        userController.addFriend(user1.getId(), user3.getId());
         userController.addFriend(user2.getId(), user3.getId());
 
         List<User> commonFriends = userController.getCommonFriends(user1.getId(), user2.getId());
@@ -101,7 +103,8 @@ class UserControllerTest {
                 "user@example.com",
                 "user2login",
                 "Name",
-                LocalDate.of(2025, 1, 1)
+                LocalDate.of(2025, 1, 1),
+                new HashSet<>()
         );
 
         assertThrows(ValidationException.class, () -> {
@@ -116,7 +119,8 @@ class UserControllerTest {
                 "user@example.com",
                 "userlogin",
                 null,
-                LocalDate.of(2000, 1, 1)
+                LocalDate.of(2000, 1, 1),
+                new HashSet<>()
         );
 
         userValidator.isValid(userWithoutName, null);

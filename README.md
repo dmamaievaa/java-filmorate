@@ -71,6 +71,14 @@ INSERT INTO friends (user_id, friend_id, friendship) VALUES (?, ?, true);
 
 - Film
 
+- Film Genre
+
+- Genres
+
+- Likes
+
+- Mpa
+
 - User
 
 ### Хранение данных

@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service.film;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -16,7 +17,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FilmServiceImpl implements FilmService {
 
+    @Qualifier("filmDbStorage")
     private final FilmStorage filmStorage;
+    @Qualifier("userDbStorage")
     private final UserStorage userStorage;
 
     @Override
@@ -52,7 +55,7 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public List<Film> getPopular(Long count) {
+    public List<Film> getPopular(int count) {
         return filmStorage.getAll().stream()
                 .sorted((o1, o2) -> Long.compare(o2.getLikes().size(), o1.getLikes().size()))
                 .limit(count)

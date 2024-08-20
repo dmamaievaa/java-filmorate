@@ -6,9 +6,12 @@ import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -54,6 +57,38 @@ public class InMemoryUserStorage implements UserStorage {
             throw new ValidationException("User with this login is already registered");
         }
     }
+
+    @Override
+    public void addFriend(Long userId, Long friendId) {
+        getUserById(userId).getFriends().add(friendId);
+        getUserById(friendId).getFriends().add(userId);
+    }
+
+    @Override
+    public void deleteFriend(Long userId, Long friendId) {
+        getUserById(userId).getFriends().remove(friendId);
+        getUserById(friendId).getFriends().remove(userId);
+    }
+
+
+    @Override
+    public List<User> getCommonFriends(Long userId, Long friendId) {
+        List<User> commonFriends = new ArrayList<>();
+        for (Long id : getUserById(userId).getFriends()) {
+            if (getUserById(friendId).getFriends().contains(id)) {
+                commonFriends.add(getUserById(id));
+            }
+        }
+        return commonFriends;
+    }
+
+    @Override
+    public List<User> getFriendsByUserId(Long id) {
+        return getAll().stream()
+                .filter(user -> user.getFriends().contains(id))
+                .collect(Collectors.toList());
+    }
+
 
     @Override
     public User getUserById(Long userId) {

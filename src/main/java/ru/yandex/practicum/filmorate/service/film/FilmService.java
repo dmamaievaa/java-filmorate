@@ -9,7 +9,7 @@ public interface FilmService {
 
      void removeLike(Long userId, Long filmId);
 
-     List<Film> getPopular(Long count);
+     List<Film> getPopular(int count);
 
      List<Film> getAll();
 

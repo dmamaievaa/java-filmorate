@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.controller;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 
 public class TestUtil {
     public static User createValidUser() {
@@ -10,7 +11,8 @@ public class TestUtil {
                 "user@example.com",
                 "userlogin",
                 "username",
-                LocalDate.of(2000, 1, 1));
+                LocalDate.of(2000, 1, 1),
+                new HashSet<>() );
     }
 
     public static User createFirstUser() {
@@ -18,7 +20,8 @@ public class TestUtil {
                 "user1@example.com",
                 "user1",
                 "User One",
-                LocalDate.of(1990, 1, 1));
+                LocalDate.of(1990, 1, 1),
+                new HashSet<>() );
     }
 
     public static User createSecondUser() {
@@ -26,7 +29,8 @@ public class TestUtil {
                 "user2@example.com",
                 "user2",
                 "User Two",
-                LocalDate.of(1990, 1, 1));
+                LocalDate.of(1990, 1, 1),
+                new HashSet<>() );
     }
 
     public static User createThirdUser() {
@@ -34,6 +38,7 @@ public class TestUtil {
                 "user3@example.com",
                 "user3",
                 "User Three",
-                LocalDate.of(1990, 1, 1));
+                LocalDate.of(1990, 1, 1),
+                new HashSet<>() );
     }
 }
