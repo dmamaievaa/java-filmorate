@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.FilmGenre;
 import ru.yandex.practicum.filmorate.service.genre.FilmGenreService;
@@ -18,6 +19,7 @@ import java.util.Collection;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
@@ -97,5 +99,19 @@ public class FilmGenreDbStorageTest {
         Set<FilmGenre> genresFromDb = filmGenreDbStorage.getGenresByFilmId(film.getId());
         assertEquals(1, genresFromDb.size());
         assertEquals("Драма", genresFromDb.iterator().next().getName());
+    }
+
+    @Test
+    void shouldThrowValidationExceptionForInvalidGenreId() {
+        film.getFilmGenre().add(FilmGenre.builder()
+                .id(500L)
+                .build());
+
+        ValidationException exception = assertThrows(ValidationException.class, () -> {
+            filmDbStorage.add(film);
+            filmGenreDbStorage.addGenresToFilm(film, film.getFilmGenre());
+        });
+
+        assertEquals("Genre with ID 500 not found", exception.getMessage());
     }
 }

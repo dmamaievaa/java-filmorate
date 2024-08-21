@@ -133,11 +133,10 @@ public class UserDbStorage implements UserStorage {
     @Override
     public List<User> getFriendsByUserId(Long id) {
         if (!userExists(id)) {
-            throw new NotFoundException(String.format("User with ID %d not found", id));
+            throw new NotFoundException(String.format("User not found ID %d", id));
         }
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("userId", id);
-
         return jdbc.query(SQL_GET_FRIENDS_BY_USER_ID, params, userRowMapper);
     }
 

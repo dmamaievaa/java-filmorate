@@ -6,6 +6,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.FilmGenre;
 
@@ -22,10 +23,10 @@ public class FilmGenreDbStorage implements FilmGenreStorage {
     private static final String SQL_GENRES_SELECT_ALL = "SELECT * FROM film_genre";
     private static final String SQL_GENRES_SELECT_BY_ID = "SELECT * FROM film_genre WHERE id = :id";
     private static final String SQL_GENRES_SELECT_BY_FILM_ID =
-            "SELECT g.id, g.name " +
-                    "FROM film_genre g " +
-                    "JOIN genres fg ON g.id = fg.genre_id " +
-                    "WHERE fg.film_id = :filmId";
+            "SELECT fg.id, fg.name " +
+                    "FROM film_genre fg " +
+                    "JOIN genres g ON fg.id = g.genre_id " +
+                    "WHERE g.film_id = :filmId";
     private static final String SQL_GENRES_INSERT = "INSERT INTO genres (film_id, genre_id) VALUES (:filmId, :genreId)";
     private static final String SQL_GENRES_DELETE_BY_FILM_ID = "DELETE FROM genres WHERE film_id = :filmId";
 
@@ -60,6 +61,9 @@ public class FilmGenreDbStorage implements FilmGenreStorage {
     public void addGenresToFilm(Film film, Set<FilmGenre> listGenre) {
         deleteAllGenresByFilmId(film.getId());
         for (FilmGenre genre : listGenre) {
+            if (!getGenreById(genre.getId()).isPresent()) {
+                throw new ValidationException("Genre with ID " + genre.getId() + " not found");
+            }
             updateFilmGenre(film.getId(), genre.getId());
         }
     }

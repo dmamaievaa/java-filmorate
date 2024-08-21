@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.test.annotation.DirtiesContext;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserDbStorage;
 
@@ -108,5 +109,38 @@ class UserDbStorageTest {
         userDbStorage.addFriend(friend.getId(), commonFriend.getId());
 
         assertEquals(commonFriend.getId(), userDbStorage.getCommonFriends(user.getId(), friend.getId()).getFirst().getId());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenGetFriendWithUnknownId() {
+        userDbStorage.add(user);
+
+        Long unknownFriendId = -1L;
+
+        NotFoundException exception = assertThrows(
+                NotFoundException.class,
+                () -> userDbStorage.getFriendsByUserId(unknownFriendId),
+                "Expected getFriendsByUserId to throw, but it didn't"
+        );
+        assertTrue(exception.getMessage().contains("User not found"));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenRemovingFriendWithUnknownId() {
+        userDbStorage.add(user);
+        userDbStorage.add(friend);
+
+        userDbStorage.addFriend(user.getId(), friend.getId());
+
+        Long unknownFriendId = 999L;
+
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
+            userDbStorage.deleteFriend(user.getId(), unknownFriendId);
+        });
+
+        assertEquals(String.format("Friend with ID %d not found", unknownFriendId), exception.getMessage());
+
+        assertEquals(1, userDbStorage.getFriendsByUserId(user.getId()).size());
+        assertEquals(friend.getId(), userDbStorage.getFriendsByUserId(user.getId()).get(0).getId());
     }
 }
