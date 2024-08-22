@@ -177,6 +177,7 @@ public class FilmDbStorage implements FilmStorage {
 
         Film film = jdbc.queryForObject(SQL_FILMS_SELECT_BY_ID, params, filmMapper);
 
+        assert film != null;
         filmGenreStorage.load(List.of(film));
 
         Set<Long> likes = likesStorage.getLikesByFilmId(filmId);

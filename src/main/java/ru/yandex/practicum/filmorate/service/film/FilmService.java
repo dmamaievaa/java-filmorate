@@ -13,6 +13,8 @@ public interface FilmService {
 
      List<Film> getAll();
 
+     Film getById(Long id);
+
      Film add(Film film);
 
      Film update(Film film);

@@ -68,6 +68,11 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
+    public Film getById(Long filmId){
+        return filmStorage.getFilmById(filmId);
+    }
+
+    @Override
     public Film add(Film film) {
         return filmStorage.add(film);
     }
