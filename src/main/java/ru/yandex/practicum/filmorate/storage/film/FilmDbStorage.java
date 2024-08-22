@@ -137,7 +137,6 @@ public class FilmDbStorage implements FilmStorage {
         if (rowsUpdated == 0) {
             throw new NotFoundException("Cannot update film as it does not exist");
         }
-        //filmGenreStorage.addGenresToFilm(film, (LinkedHashSet<Genre>) film.getGenres());
         filmGenreStorage.addGenresToFilm(film, film.getGenres());
 
         return film;
