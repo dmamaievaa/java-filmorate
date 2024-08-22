@@ -114,21 +114,11 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void deleteFriend(Long userId, Long friendId) {
-        if (!userExists(userId)) {
-            throw new NotFoundException(String.format("User with ID %d not found", userId));
-        }
-        if (!userExists(friendId)) {
-            throw new NotFoundException(String.format("Friend with ID %d not found", friendId));
-        }
+        log.info("Deleting friend with ID {} from user with ID {}", friendId, userId);
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("userId", userId)
                 .addValue("friendId", friendId);
-
-        int rowsAffected = jdbc.update(SQL_DELETE_FRIEND, params);
-        if (rowsAffected == 0) {
-            throw new NotFoundException(String.format("No friendship found between user %d and friend %d", userId, friendId));
-        }
-    }
+}
 
     @Override
     public List<User> getFriendsByUserId(Long id) {
