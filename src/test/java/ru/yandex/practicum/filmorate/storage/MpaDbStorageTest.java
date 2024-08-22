@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaDbStorage;
@@ -46,23 +46,28 @@ public class MpaDbStorageTest {
     @Test
     void shouldAddMpaToFilm() {
         film.setMpa(Mpa.builder()
-                .id(1)
+                .id(3)
                 .name("PG-13")
                 .build());
         mpaDbStorage.addMpa(film);
         assertNotNull(film.getMpa());
     }
 
-    @Test
+     @Test
     void shouldThrowValidationExceptionForInvalidMpaId() {
         film.setMpa(Mpa.builder()
                 .id(10)
                 .build());
 
-        ValidationException exception = assertThrows(ValidationException.class, () -> {
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
             mpaDbStorage.addMpa(film);
         });
-
         assertEquals("MPA with ID 10 not found", exception.getMessage());
+    }
+
+    @Test
+    void shouldVerifyMpaExists() {
+        Mpa mpa = mpaDbStorage.getMpaById(3); // Проверяет, существует ли MPA с ID 3
+        assertNotNull(mpa);
     }
 }

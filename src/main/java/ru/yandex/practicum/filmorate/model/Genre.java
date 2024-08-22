@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class FilmGenre {
+public class Genre {
     private Long id;
     private String name;
 }

@@ -2,6 +2,8 @@ package ru.yandex.practicum.filmorate.storage.film;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
@@ -10,17 +12,21 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.FilmGenre;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.storage.filmgenre.FilmGenreStorage;
+import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 import ru.yandex.practicum.filmorate.storage.likes.LikesStorage;
+import ru.yandex.practicum.filmorate.storage.mpa.MpaDbStorage;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
@@ -30,8 +36,9 @@ import java.util.Set;
 public class FilmDbStorage implements FilmStorage {
 
     private final NamedParameterJdbcOperations jdbc;
-    private final FilmGenreStorage filmGenreStorage;
+    private final GenreDbStorage filmGenreStorage;
     private final LikesStorage likesStorage;
+    private final MpaDbStorage mpaDbStorage;
 
     private static final String SQL_FILMS_SELECT_ALL = "SELECT f.*, m.name AS mpa_name " +
             "FROM films f " +
@@ -57,8 +64,8 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> getAll() {
         List<Film> films = jdbc.query(SQL_FILMS_SELECT_ALL, filmMapper);
         for (Film film : films) {
-            Set<FilmGenre> genres = filmGenreStorage.getGenresByFilmId(film.getId());
-            film.setFilmGenre(genres);
+            Set<Genre> genres = filmGenreStorage.getGenresByFilmId(film.getId());
+            film.setGenres(genres);
             Set<Long> likes = likesStorage.getLikesByFilmId(film.getId());
             film.setLikes(likes);
         }
@@ -67,7 +74,36 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film add(Film film) {
-        SqlParameterSource params = new MapSqlParameterSource()
+        Logger log = LoggerFactory.getLogger(this.getClass());
+        log.info("Starting the addition of a new film: {}", film);
+
+        log.info("Checking existence of MPA with ID: {}", film.getMpa().getId());
+        Optional<Mpa> mpaOptional = Optional.ofNullable(mpaDbStorage.getMpaById(film.getMpa().getId()));
+        if (mpaOptional.isEmpty()) {
+            log.warn("MPA with ID {} not found in the database", film.getMpa().getId());
+            throw new ValidationException(String.format("MPA with ID %d does not exist", film.getMpa().getId()));
+        }
+        Mpa mpa = mpaOptional.orElse(null);
+        film.setMpa(mpa);
+
+        if (film.getGenres() == null || film.getGenres().isEmpty()) {
+            log.warn("Attempt to add a film without specifying genres: {}", film);
+            film.setGenres(new HashSet<>());
+        } else {
+            Set<Genre> genres = new HashSet<>();
+            for (Genre genre : film.getGenres()) {
+                Optional<Genre> genreOptional = filmGenreStorage.getGenreById(genre.getId());
+                if (genreOptional.isEmpty()) {
+                    log.warn("Genre with ID {} not found in the database", genre.getId());
+                    throw new ValidationException(String.format("Genre with ID %d does not exist", genre.getId()));
+                }
+                genres.add(genreOptional.get());
+            }
+            film.setGenres(genres);
+        }
+
+        log.info("Inserting the film into the database: {}", film);
+        SqlParameterSource filmParams = new MapSqlParameterSource()
                 .addValue("name", film.getName())
                 .addValue("description", film.getDescription())
                 .addValue("releaseDate", film.getReleaseDate())
@@ -75,12 +111,14 @@ public class FilmDbStorage implements FilmStorage {
                 .addValue("mpaId", film.getMpa().getId());
 
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbc.update(SQL_FILMS_INSERT, params, keyHolder);
-        Long filmId = keyHolder.getKey().longValue();
+        jdbc.update(SQL_FILMS_INSERT, filmParams, keyHolder);
+
+        Long filmId = Objects.requireNonNull(keyHolder.getKey()).longValue();
         film.setId(filmId);
-        if (film.getFilmGenre() != null && !film.getFilmGenre().isEmpty()) {
-            filmGenreStorage.addGenresToFilm(film, film.getFilmGenre());
-        }
+        log.info("Film successfully added with ID: {}", filmId);
+
+        film.setLikes(new HashSet<>());
+        log.info("Film added successfully: {}", film);
         return film;
     }
 
@@ -98,7 +136,7 @@ public class FilmDbStorage implements FilmStorage {
         if (rowsUpdated == 0) {
             throw new NotFoundException("Cannot update film as it does not exist");
         }
-        filmGenreStorage.addGenresToFilm(film, film.getFilmGenre());
+        filmGenreStorage.addGenresToFilm(film, film.getGenres());
         return film;
     }
 
@@ -158,7 +196,7 @@ public class FilmDbStorage implements FilmStorage {
                             .name(rs.getString("mpa_name"))
                             .build())
                     .likes(new HashSet<>())
-                    .filmGenre(new HashSet<>())
+                    .genres(new HashSet<>())
                     .build();
         }
     };

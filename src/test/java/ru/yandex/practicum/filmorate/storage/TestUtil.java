@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.storage;
 
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.FilmGenre;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -21,7 +21,7 @@ public class TestUtil {
                         .name(mpaName)
                         .build())
                 .build();
-        film.setFilmGenre(new HashSet<>());
+        film.setGenres(new HashSet<>());
         film.setLikes(new HashSet<>());
         return film;
     }
@@ -48,8 +48,8 @@ public class TestUtil {
         return user;
     }
 
-    public static FilmGenre createGenre(Long id, String name) {
-        return FilmGenre.builder()
+    public static Genre createGenre(Long id, String name) {
+        return Genre.builder()
                 .id(id)
                 .name(name)
                 .build();

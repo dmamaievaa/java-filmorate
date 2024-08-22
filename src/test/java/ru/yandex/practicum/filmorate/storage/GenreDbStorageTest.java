@@ -9,10 +9,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.FilmGenre;
-import ru.yandex.practicum.filmorate.service.genre.FilmGenreService;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.service.genre.GenreService;
 import ru.yandex.practicum.filmorate.storage.film.FilmDbStorage;
-import ru.yandex.practicum.filmorate.storage.filmgenre.FilmGenreDbStorage;
+import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -26,11 +26,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
-public class FilmGenreDbStorageTest {
+public class GenreDbStorageTest {
 
     private final FilmDbStorage filmDbStorage;
-    private final FilmGenreService genreService;
-    private final FilmGenreDbStorage filmGenreDbStorage;
+    private final GenreService genreService;
+    private final GenreDbStorage filmGenreDbStorage;
 
     private Film film;
 
@@ -41,40 +41,40 @@ public class FilmGenreDbStorageTest {
 
     @Test
     void shouldGetAllGenres() {
-        Collection<FilmGenre> genres = genreService.getAll();
+        Collection<Genre> genres = genreService.getAll();
         assertEquals(6, genres.size());
     }
 
     @Test
     void shouldSetFilmGenre() {
-        assertTrue(film.getFilmGenre().isEmpty());
+        assertTrue(film.getGenres().isEmpty());
 
-        film.getFilmGenre().add(FilmGenre.builder()
+        film.getGenres().add(Genre.builder()
                 .id(1L)
                 .name("Комедия")
                 .build());
 
-        assertEquals(1, film.getFilmGenre().size());
+        assertEquals(1, film.getGenres().size());
     }
 
     @Test
     void shouldGetGenreForId() {
-        FilmGenre genreTest = genreService.getGenreById(1L);
+        Genre genreTest = genreService.getGenreById(1L);
         assertEquals("Комедия", genreTest.getName());
     }
 
     @Test
     void shouldAddGenre() {
-        assertTrue(film.getFilmGenre().isEmpty());
+        assertTrue(film.getGenres().isEmpty());
 
         filmDbStorage.add(film);
-        film.getFilmGenre().add(FilmGenre.builder()
+        film.getGenres().add(Genre.builder()
                 .id(1L)
                 .name("Комедия")
                 .build());
-        filmGenreDbStorage.addGenresToFilm(film, film.getFilmGenre());
+        filmGenreDbStorage.addGenresToFilm(film, film.getGenres());
 
-        Set<FilmGenre> genresFromDb = filmGenreDbStorage.getGenresByFilmId(film.getId());
+        Set<Genre> genresFromDb = filmGenreDbStorage.getGenresByFilmId(film.getId());
         assertEquals(1, genresFromDb.size());
         assertEquals("Комедия", genresFromDb.iterator().next().getName());
     }
@@ -84,34 +84,34 @@ public class FilmGenreDbStorageTest {
         filmDbStorage.add(film);
 
         filmGenreDbStorage.addGenresToFilm(film, Set.of(
-                FilmGenre.builder()
+                Genre.builder()
                         .id(1L)
                         .name("Комедия")
                         .build()));
 
-        film.getFilmGenre().clear();
-        film.getFilmGenre().add(FilmGenre.builder()
+        film.getGenres().clear();
+        film.getGenres().add(Genre.builder()
                 .id(2L)
                 .name("Драма")
                 .build());
-        filmGenreDbStorage.addGenresToFilm(film, film.getFilmGenre());
+        filmGenreDbStorage.addGenresToFilm(film, film.getGenres());
 
-        Set<FilmGenre> genresFromDb = filmGenreDbStorage.getGenresByFilmId(film.getId());
+        Set<Genre> genresFromDb = filmGenreDbStorage.getGenresByFilmId(film.getId());
         assertEquals(1, genresFromDb.size());
         assertEquals("Драма", genresFromDb.iterator().next().getName());
     }
 
     @Test
     void shouldThrowValidationExceptionForInvalidGenreId() {
-        film.getFilmGenre().add(FilmGenre.builder()
+        film.getGenres().add(Genre.builder()
                 .id(500L)
                 .build());
 
         ValidationException exception = assertThrows(ValidationException.class, () -> {
             filmDbStorage.add(film);
-            filmGenreDbStorage.addGenresToFilm(film, film.getFilmGenre());
+            filmGenreDbStorage.addGenresToFilm(film, film.getGenres());
         });
 
-        assertEquals("Genre with ID 500 not found", exception.getMessage());
+        assertEquals("Genre with ID 500 does not exist", exception.getMessage());
     }
 }

@@ -6,7 +6,6 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
@@ -52,13 +51,11 @@ public class MpaDbStorage implements MpaStorage {
     @Override
     public void addMpa(Film film) {
         int mpaId = film.getMpa().getId();
-
-        if (!jdbc.query(SQL_MPA_SELECT_BY_ID, new MapSqlParameterSource("id", mpaId), mpaMapper).stream().findFirst().isPresent()) {
-            throw new ValidationException("MPA with ID " + mpaId + " not found");
-        }
-
-        MapSqlParameterSource params = new MapSqlParameterSource("name", film.getMpa().getName());
-        jdbc.update(SQL_MPA_INSERT, params);
+        Mpa existingMpa = jdbc.query(SQL_MPA_SELECT_BY_ID, new MapSqlParameterSource("id", mpaId), mpaMapper)
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("MPA with ID " + mpaId + " not found"));
+        film.setMpa(existingMpa);
     }
 
     private final RowMapper<Mpa> mpaMapper = new RowMapper<>() {
@@ -70,5 +67,4 @@ public class MpaDbStorage implements MpaStorage {
                     .build();
         }
     };
-
 }

@@ -9,7 +9,6 @@ import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
-
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
@@ -35,9 +34,8 @@ public class Film {
     private Set<Long> likes;
 
     @Builder.Default
-    private Set<FilmGenre> filmGenre = new HashSet<>();
+    private Set<Genre> genres= new HashSet<>();
 
-    @NotNull
     private Mpa mpa;
 
     @Builder
@@ -47,7 +45,7 @@ public class Film {
                 LocalDate releaseDate,
                 long duration,
                 Set<Long> likes,
-                Set<FilmGenre> filmGenre,
+                Set<Genre> genres,
                 Mpa mpa) {
         this.id = id;
         this.name = name;
@@ -55,7 +53,7 @@ public class Film {
         this.releaseDate = releaseDate;
         this.duration = duration;
         this.likes = likes != null ? likes : new HashSet<>();
-        this.filmGenre = filmGenre;
+        this.genres = genres;
         this.mpa = mpa;
     }
 }
