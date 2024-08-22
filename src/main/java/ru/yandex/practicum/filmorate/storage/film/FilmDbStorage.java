@@ -48,9 +48,11 @@ public class FilmDbStorage implements FilmStorage {
             "VALUES (:name, :description, :releaseDate, :duration, :mpaId)";
     private static final String SQL_FILMS_UPDATE = "UPDATE films SET name = :name, description = :description, " +
             "release_date = :releaseDate, duration = :duration, mpa_id = :mpaId WHERE id = :id";
-    private static final String SQL_FILMS_SELECT_BY_ID = "SELECT f.*, m.name AS mpa_name " +
+    private static final String SQL_FILMS_SELECT_BY_ID = "SELECT f.*, m.name AS mpa_name, g.id, g.name AS genre_name " +
             "FROM films f " +
             "JOIN mpa m ON f.mpa_id = m.id " +
+            "LEFT JOIN film_genre fg ON f.id = fg.film_id " +
+            "LEFT JOIN genres g ON fg.genre_id = g.id " +
             "WHERE f.id = :id";
     private static final String SQL_LIKES_INSERT = "INSERT INTO likes (film_id, user_id) VALUES (:filmId, :userId)";
     private static final String SQL_LIKES_DELETE = "DELETE FROM likes WHERE film_id = :filmId AND user_id = :userId";
@@ -101,6 +103,7 @@ public class FilmDbStorage implements FilmStorage {
                 genres.add(genreOptional.get());
             }
             film.setGenres(genres);
+            log.info("Genres to be added for the film: {}", film.getGenres());
         }
 
         log.info("Inserting the film into the database: {}", film);
@@ -118,8 +121,18 @@ public class FilmDbStorage implements FilmStorage {
         film.setId(filmId);
         log.info("Film successfully added with ID: {}", filmId);
 
+        if (film.getGenres() != null && !film.getGenres().isEmpty()) {
+            for (Genre genre : film.getGenres()) {
+                SqlParameterSource genreParams = new MapSqlParameterSource()
+                        .addValue("filmId", filmId)
+                        .addValue("genreId", genre.getId());
+                jdbc.update("INSERT INTO film_genre (film_id, genre_id) VALUES (:filmId, :genreId)", genreParams);
+            }
+        }
+
         film.setLikes(new HashSet<>());
         log.info("Film added successfully: {}", film);
+
         return film;
     }
 
@@ -137,7 +150,6 @@ public class FilmDbStorage implements FilmStorage {
         if (rowsUpdated == 0) {
             throw new NotFoundException("Cannot update film as it does not exist");
         }
-        //filmGenreStorage.addGenresToFilm(film, (LinkedHashSet<Genre>) film.getGenres());
         filmGenreStorage.addGenresToFilm(film, film.getGenres());
 
         return film;
@@ -177,8 +189,12 @@ public class FilmDbStorage implements FilmStorage {
 
         Film film = jdbc.queryForObject(SQL_FILMS_SELECT_BY_ID, params, filmMapper);
 
-        assert film != null;
-        filmGenreStorage.load(List.of(film));
+        if (film == null) {
+            throw new NotFoundException("Film with ID " + filmId + " not found");
+        }
+
+        LinkedHashSet<Genre> genres = filmGenreStorage.getGenresByFilmId(filmId);
+        film.setGenres(genres);
 
         Set<Long> likes = likesStorage.getLikesByFilmId(filmId);
         film.setLikes(likes);
