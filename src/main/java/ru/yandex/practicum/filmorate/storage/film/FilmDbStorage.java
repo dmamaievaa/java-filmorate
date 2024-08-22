@@ -24,6 +24,7 @@ import ru.yandex.practicum.filmorate.storage.mpa.MpaDbStorage;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -64,7 +65,7 @@ public class FilmDbStorage implements FilmStorage {
     public List<Film> getAll() {
         List<Film> films = jdbc.query(SQL_FILMS_SELECT_ALL, filmMapper);
         for (Film film : films) {
-            Set<Genre> genres = filmGenreStorage.getGenresByFilmId(film.getId());
+            LinkedHashSet<Genre> genres = filmGenreStorage.getGenresByFilmId(film.getId());
             film.setGenres(genres);
             Set<Long> likes = likesStorage.getLikesByFilmId(film.getId());
             film.setLikes(likes);
@@ -88,9 +89,9 @@ public class FilmDbStorage implements FilmStorage {
 
         if (film.getGenres() == null || film.getGenres().isEmpty()) {
             log.warn("Attempt to add a film without specifying genres: {}", film);
-            film.setGenres(new HashSet<>());
+            film.setGenres(new LinkedHashSet<>());
         } else {
-            Set<Genre> genres = new HashSet<>();
+            LinkedHashSet<Genre> genres = new LinkedHashSet<>();
             for (Genre genre : film.getGenres()) {
                 Optional<Genre> genreOptional = filmGenreStorage.getGenreById(genre.getId());
                 if (genreOptional.isEmpty()) {
@@ -136,7 +137,9 @@ public class FilmDbStorage implements FilmStorage {
         if (rowsUpdated == 0) {
             throw new NotFoundException("Cannot update film as it does not exist");
         }
+        //filmGenreStorage.addGenresToFilm(film, (LinkedHashSet<Genre>) film.getGenres());
         filmGenreStorage.addGenresToFilm(film, film.getGenres());
+
         return film;
     }
 
@@ -196,7 +199,7 @@ public class FilmDbStorage implements FilmStorage {
                             .name(rs.getString("mpa_name"))
                             .build())
                     .likes(new HashSet<>())
-                    .genres(new HashSet<>())
+                    .genres(new LinkedHashSet<>())
                     .build();
         }
     };

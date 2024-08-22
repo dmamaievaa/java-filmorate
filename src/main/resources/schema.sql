@@ -41,10 +41,12 @@ CREATE TABLE IF NOT EXISTS genres
 
 CREATE TABLE IF NOT EXISTS friends
 (
-    user_id       bigint  NOT NULL REFERENCES users (id),
-    friend_id     bigint  NOT NULL REFERENCES users (id),
+    user_id       bigint,
+    friend_id     bigint,
     friendship    boolean NOT NULL DEFAULT FALSE,
-    PRIMARY KEY (user_id, friend_id)
+    PRIMARY KEY (user_id, friend_id),
+    FOREIGN KEY (user_id) REFERENCES users (id),
+    FOREIGN KEY (friend_id) REFERENCES users (id)
 );
 
 CREATE TABLE IF NOT EXISTS film_genre

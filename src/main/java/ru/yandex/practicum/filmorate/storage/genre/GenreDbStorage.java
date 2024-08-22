@@ -42,10 +42,10 @@ public class GenreDbStorage implements GenreStorage {
     }
 
     @Override
-    public HashSet<Genre> getGenresByFilmId(Long filmId) {
+    public LinkedHashSet<Genre> getGenresByFilmId(Long filmId) {
         SqlParameterSource params = new MapSqlParameterSource("filmId", filmId);
         List<Genre> genreList = jdbc.query(SQL_GENRES_SELECT_BY_FILM_ID, params, genreMapper);
-        return new HashSet<>(genreList);
+        return new LinkedHashSet<>(genreList);
     }
 
     @Override
@@ -57,7 +57,11 @@ public class GenreDbStorage implements GenreStorage {
     }
 
     @Override
-    public void addGenresToFilm(Film film, Set<Genre> listGenre) {
+    public void addGenresToFilm(Film film, LinkedHashSet<Genre> listGenre) {
+        if (listGenre == null) {
+            listGenre = new LinkedHashSet<>();
+        }
+
         deleteAllGenresByFilmId(film.getId());
         for (Genre genre : listGenre) {
             if (getGenreById(genre.getId()).isEmpty()) {
@@ -70,7 +74,7 @@ public class GenreDbStorage implements GenreStorage {
     @Override
     public void load(List<Film> films) {
         for (Film film : films) {
-            HashSet<Genre> genres = getGenresByFilmId(film.getId());
+            LinkedHashSet<Genre> genres = getGenresByFilmId(film.getId());
             film.setGenres(genres);
         }
     }

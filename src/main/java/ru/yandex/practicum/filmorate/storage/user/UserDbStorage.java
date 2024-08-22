@@ -28,8 +28,6 @@ public class UserDbStorage implements UserStorage {
     private final NamedParameterJdbcOperations jdbc;
 
     private static final String SQL_USERS_SELECT_ALL = "SELECT * FROM users";
-    private static final String SQL_USERS_INSERT = "INSERT INTO users (email, login, name, birthday) " +
-            "VALUES (:email, :login, :name, :birthday)";
     private static final String SQL_USERS_UPDATE = "UPDATE users SET email = :email, login = :login, " +
             "name = :name, birthday = :birthday WHERE id = :id";
     private static final String SQL_USERS_SELECT_BY_ID = "SELECT * FROM users WHERE id = :id";
@@ -40,11 +38,6 @@ public class UserDbStorage implements UserStorage {
             "JOIN friends f ON u.id = f.friend_id " +
             "WHERE f.user_id = :userId";
     private static final String SQL_GET_COMMON_FRIENDS = "SELECT u.id, u.email, u.login, u.name, u.birthday " +
-            "FROM users u " +
-            "JOIN friends f1 ON u.id = f1.friend_id " +
-            "JOIN friends f2 ON u.id = f2.friend_id " +
-            "WHERE f1.user_id = :userId AND f2.user_id = :friendId";
-    private static final String SQL_FIND_FRIENDS = "SELECT u.id, u.email, u.login, u.name, u.birthday " +
             "FROM users u " +
             "JOIN friends f1 ON u.id = f1.friend_id " +
             "JOIN friends f2 ON u.id = f2.friend_id " +
@@ -114,11 +107,13 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void deleteFriend(Long userId, Long friendId) {
+        validateUsersExist(userId, friendId);
         log.info("Deleting friend with ID {} from user with ID {}", friendId, userId);
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("userId", userId)
                 .addValue("friendId", friendId);
-}
+        jdbc.update(SQL_DELETE_FRIEND, params);
+    }
 
     @Override
     public List<User> getFriendsByUserId(Long id) {

@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 
 public class TestUtil {
 
@@ -21,7 +22,7 @@ public class TestUtil {
                         .name(mpaName)
                         .build())
                 .build();
-        film.setGenres(new HashSet<>());
+        film.setGenres(new LinkedHashSet<>());
         film.setLikes(new HashSet<>());
         return film;
     }
