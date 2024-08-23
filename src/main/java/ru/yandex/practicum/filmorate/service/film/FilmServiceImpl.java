@@ -34,8 +34,8 @@ public class FilmServiceImpl implements FilmService {
             throw new NotFoundException("User not found");
         }
 
-        film.getLikes().add(user.getId());
-        log.trace("User {} liked the film {}", user.getName(), film.getName());
+        filmStorage.addLike(id, userId);
+        log.debug("User {} liked the film {}", user.getName(), film.getName());
     }
 
     @Override
@@ -51,7 +51,7 @@ public class FilmServiceImpl implements FilmService {
         }
 
         film.getLikes().remove(user.getId());
-        log.trace("User {} removed like from the film {}", user.getName(), film.getName());
+        log.debug("User {} removed like from the film {}", user.getName(), film.getName());
     }
 
     @Override

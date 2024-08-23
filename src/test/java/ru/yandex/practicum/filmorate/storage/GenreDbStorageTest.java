@@ -1,4 +1,4 @@
-/*package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.storage;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
@@ -84,11 +84,12 @@ public class GenreDbStorageTest {
     void shouldUpdateGenre() {
         filmDbStorage.add(film);
 
-        filmGenreDbStorage.addGenresToFilm(film, (LinkedHashSet<Genre>) Set.of(
-                Genre.builder()
-                        .id(1L)
-                        .name("Комедия")
-                        .build()));
+        LinkedHashSet<Genre> initialGenres = new LinkedHashSet<>();
+        initialGenres.add(Genre.builder()
+                .id(1L)
+                .name("Комедия")
+                .build());
+        filmGenreDbStorage.addGenresToFilm(film, initialGenres);
 
         film.getGenres().clear();
         film.getGenres().add(Genre.builder()
@@ -115,4 +116,4 @@ public class GenreDbStorageTest {
 
         assertEquals("Genre with ID 500 does not exist", exception.getMessage());
     }
-}*/
+}

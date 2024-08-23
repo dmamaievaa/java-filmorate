@@ -30,7 +30,7 @@ public class InMemoryUserStorage implements UserStorage {
         user.setId(userId);
         users.put(userId, user);
         userId++;
-        log.info("User with id = {} successfully added", user.getId());
+        log.debug("User with id = {} successfully added", user.getId());
         return user;
     }
 
@@ -41,7 +41,7 @@ public class InMemoryUserStorage implements UserStorage {
                 checkUserLogin(users, user);
             }
             users.put(user.getId(), user);
-            log.info("User with id = {} successfully updated", user.getId());
+            log.debug("User with id = {} successfully updated", user.getId());
         } else {
             log.warn("User with id = {} not updated, as they are not registered", user.getId());
             throw new NotFoundException("Cannot update user data. User does not exist");

@@ -1,4 +1,4 @@
-/*package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.storage;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,6 +34,8 @@ class FilmDbStorageTest {
     private Film film2;
     private User user;
     private User user2;
+    private User user3;
+
 
     @BeforeEach
     void setUp() {
@@ -41,17 +43,21 @@ class FilmDbStorageTest {
         film2 = TestUtil.createFilm("name2", LocalDate.of(1999, 8, 17), 136, 1, "G");
         user = TestUtil.createUser("user@example.com", "user", LocalDate.of(1990, 1, 1));
         user2 = TestUtil.createUser("user1@example.com", "user1", LocalDate.of(1995, 11, 15));
+        user3 = TestUtil.createUser("user3@example.com", "user3", LocalDate.of(1992, 3, 3));
+        filmDbStorage.add(film);
+        filmDbStorage.add(film2);
+        userDbStorage.add(user);
+        userDbStorage.add(user2);
+        userDbStorage.add(user3);
     }
 
     @Test
     void shouldAddFilm() {
-        filmDbStorage.add(film);
         assertEquals(film, filmDbStorage.getFilmById(film.getId()));
     }
 
     @Test
     void shouldUpdateFilm() {
-        filmDbStorage.add(film);
         assertEquals(film, filmDbStorage.getFilmById(film.getId()));
 
         film.setName("updateName");
@@ -61,9 +67,6 @@ class FilmDbStorageTest {
 
     @Test
     void shouldLikeAndDeleteLike() {
-        filmDbStorage.add(film);
-        userDbStorage.add(user);
-        userDbStorage.add(user2);
         filmDbStorage.addLike(film.getId(), user.getId());
         filmDbStorage.addLike(film.getId(), user2.getId());
         film.setLikes(likeDbStorage.getLikesByFilmId(film.getId()));
@@ -75,16 +78,20 @@ class FilmDbStorageTest {
     }
 
     @Test
-    void shouldGetRating() {
-        filmDbStorage.add(film);
-        userDbStorage.add(user);
-        userDbStorage.add(user2);
+    void shouldGetPopularFilms() {
         filmDbStorage.addLike(film.getId(), user.getId());
         filmDbStorage.addLike(film.getId(), user2.getId());
 
-        Long filmId = film.getId();
-        List<Film> popularFilms = filmService.getPopular(1);
+        filmDbStorage.addLike(film2.getId(), user3.getId());
 
-        assertEquals(filmId, popularFilms.getFirst().getId());
+        List<Film> popularFilms = filmService.getPopular(2); // Получаем топ 2 популярных фильма
+
+        assertEquals(2, popularFilms.size(), "There should be 2 popular films");
+
+        assertEquals(film.getId(), popularFilms.get(0).getId(), "Film 1 should be the most popular");
+        assertEquals(film2.getId(), popularFilms.get(1).getId(), "Film 2 should be the second most popular");
+
+        System.out.println("Film 1: " + filmDbStorage.getFilmById(film.getId()));
+        System.out.println("Film 2: " + filmDbStorage.getFilmById(film2.getId()));
     }
-}*/
+}

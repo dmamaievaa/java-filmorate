@@ -108,7 +108,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public void deleteFriend(Long userId, Long friendId) {
         validateUsersExist(userId, friendId);
-        log.info("Deleting friend with ID {} from user with ID {}", friendId, userId);
+        log.debug("Deleting friend with ID {} from user with ID {}", friendId, userId);
         MapSqlParameterSource params = new MapSqlParameterSource()
                 .addValue("userId", userId)
                 .addValue("friendId", friendId);

@@ -31,7 +31,6 @@ public class FilmController {
 
     @PostMapping
     public Film add(@ValidFilm @RequestBody Film film) {
-        log.info("Received request to add a new film: {}", film);
         return filmService.add(film);
     }
 

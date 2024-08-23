@@ -78,10 +78,10 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film add(Film film) {
         Logger log = LoggerFactory.getLogger(this.getClass());
-        log.info("Starting the addition of a new film: {}", film);
+        log.debug("Starting the addition of a new film: {}", film);
 
         try {
-            log.info("Checking existence of MPA with ID: {}", film.getMpa().getId());
+            log.debug("Checking existence of MPA with ID: {}", film.getMpa().getId());
             Mpa mpa = mpaDbStorage.getMpaById(film.getMpa().getId());
             film.setMpa(mpa);
         } catch (NotFoundException e) {
@@ -103,10 +103,9 @@ public class FilmDbStorage implements FilmStorage {
                 genres.add(genreOptional.get());
             }
             film.setGenres(genres);
-            log.info("Genres to be added for the film: {}", film.getGenres());
+            log.debug("Genres to be added for the film: {}", film.getGenres());
         }
 
-        log.info("Inserting the film into the database: {}", film);
         SqlParameterSource filmParams = new MapSqlParameterSource()
                 .addValue("name", film.getName())
                 .addValue("description", film.getDescription())
@@ -119,7 +118,7 @@ public class FilmDbStorage implements FilmStorage {
 
         Long filmId = Objects.requireNonNull(keyHolder.getKey()).longValue();
         film.setId(filmId);
-        log.info("Film successfully added with ID: {}", filmId);
+        log.debug("Film successfully added with ID: {}", filmId);
 
         if (film.getGenres() != null && !film.getGenres().isEmpty()) {
             for (Genre genre : film.getGenres()) {
@@ -131,7 +130,7 @@ public class FilmDbStorage implements FilmStorage {
         }
 
         film.setLikes(new HashSet<>());
-        log.info("Film added successfully: {}", film);
+        log.debug("Film added successfully: {}", film);
 
         return film;
     }
@@ -158,10 +157,22 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film addLike(Long filmId, Long userId) {
         Film film = getFilmById(filmId);
+
+        Set<Long> existingLikes = likesStorage.getLikesByFilmId(filmId);
+        int initialLikesCount = existingLikes.size();
+
         SqlParameterSource params = new MapSqlParameterSource()
                 .addValue("filmId", filmId)
                 .addValue("userId", userId);
         jdbc.update(SQL_LIKES_INSERT, params);
+
+        Set<Long> updatedLikes = likesStorage.getLikesByFilmId(filmId);
+        int updatedLikesCount = updatedLikes.size();
+
+        log.debug("Film ID: {}", filmId);
+        log.debug("Initial likes count: {}", initialLikesCount);
+        log.debug("Updated likes count: {}", updatedLikesCount);
+
         return film;
     }
 
