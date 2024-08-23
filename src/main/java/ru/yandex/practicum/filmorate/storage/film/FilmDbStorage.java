@@ -80,14 +80,14 @@ public class FilmDbStorage implements FilmStorage {
         Logger log = LoggerFactory.getLogger(this.getClass());
         log.info("Starting the addition of a new film: {}", film);
 
-        log.info("Checking existence of MPA with ID: {}", film.getMpa().getId());
-        Optional<Mpa> mpaOptional = Optional.ofNullable(mpaDbStorage.getMpaById(film.getMpa().getId()));
-        if (mpaOptional.isEmpty()) {
+        try {
+            log.info("Checking existence of MPA with ID: {}", film.getMpa().getId());
+            Mpa mpa = mpaDbStorage.getMpaById(film.getMpa().getId());
+            film.setMpa(mpa);
+        } catch (NotFoundException e) {
             log.warn("MPA with ID {} not found in the database", film.getMpa().getId());
             throw new ValidationException(String.format("MPA with ID %d does not exist", film.getMpa().getId()));
         }
-        Mpa mpa = mpaOptional.orElse(null);
-        film.setMpa(mpa);
 
         if (film.getGenres() == null || film.getGenres().isEmpty()) {
             log.warn("Attempt to add a film without specifying genres: {}", film);

@@ -6,7 +6,6 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
@@ -37,7 +36,7 @@ public class MpaDbStorage implements MpaStorage {
         return jdbc.query(SQL_MPA_SELECT_BY_ID, params, mpaMapper)
                 .stream()
                 .findFirst()
-                .orElseThrow(() -> new ValidationException("MPA with id " + mpaId + " not found"));
+                .orElseThrow(() -> new NotFoundException("MPA with id " + mpaId + " not found"));
     }
 
     @Override
