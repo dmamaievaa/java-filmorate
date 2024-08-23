@@ -9,8 +9,6 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 
 import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 
 @Slf4j
 @Service
@@ -31,10 +29,5 @@ public class GenreServiceImpl implements GenreService {
         return filmGenreStorage
                 .getGenreById(genreId)
                 .orElseThrow(() -> new NotFoundException("Genre with id = " + genreId + " is not in the database"));
-    }
-
-    @Override
-    public Set<Genre> getGenresByFilmId(Long id) {
-        return new HashSet<>(filmGenreStorage.getGenresByFilmId(id));
     }
 }

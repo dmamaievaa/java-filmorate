@@ -6,7 +6,6 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Optional;
 
 public interface GenreStorage {
@@ -19,8 +18,6 @@ public interface GenreStorage {
     void updateFilmGenre(Long filmId, Long genreId);
 
     void addGenresToFilm(Film film, LinkedHashSet<Genre> listGenre);
-
-    void load(List<Film> films);
 
     void deleteAllGenresByFilmId(Long filmId);
 }

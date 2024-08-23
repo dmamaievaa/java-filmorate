@@ -72,14 +72,6 @@ public class GenreDbStorage implements GenreStorage {
     }
 
     @Override
-    public void load(List<Film> films) {
-        for (Film film : films) {
-            LinkedHashSet<Genre> genres = getGenresByFilmId(film.getId());
-            film.setGenres(genres);
-        }
-    }
-
-    @Override
     public void deleteAllGenresByFilmId(Long filmId) {
         SqlParameterSource params = new MapSqlParameterSource("filmId", filmId);
         jdbc.update(SQL_GENRES_DELETE_BY_FILM_ID, params);

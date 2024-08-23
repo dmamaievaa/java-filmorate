@@ -17,5 +17,4 @@ public interface FilmStorage {
 
     Film deleteLike(Long filmId, Long userId);
 
-    List<Film> getRating(int count);
 }

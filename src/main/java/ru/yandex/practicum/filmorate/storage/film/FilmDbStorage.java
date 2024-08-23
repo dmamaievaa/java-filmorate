@@ -41,27 +41,36 @@ public class FilmDbStorage implements FilmStorage {
     private final LikesStorage likesStorage;
     private final MpaDbStorage mpaDbStorage;
 
-    private static final String SQL_FILMS_SELECT_ALL = "SELECT f.*, m.name AS mpa_name " +
-            "FROM films f " +
-            "JOIN mpa m ON f.mpa_id = m.id";
-    private static final String SQL_FILMS_INSERT = "INSERT INTO films (name, description, release_date, duration, mpa_id) " +
-            "VALUES (:name, :description, :releaseDate, :duration, :mpaId)";
-    private static final String SQL_FILMS_UPDATE = "UPDATE films SET name = :name, description = :description, " +
-            "release_date = :releaseDate, duration = :duration, mpa_id = :mpaId WHERE id = :id";
-    private static final String SQL_FILMS_SELECT_BY_ID = "SELECT f.*, m.name AS mpa_name, g.id, g.name AS genre_name " +
-            "FROM films f " +
-            "JOIN mpa m ON f.mpa_id = m.id " +
-            "LEFT JOIN film_genre fg ON f.id = fg.film_id " +
-            "LEFT JOIN genres g ON fg.genre_id = g.id " +
-            "WHERE f.id = :id";
-    private static final String SQL_LIKES_INSERT = "INSERT INTO likes (film_id, user_id) VALUES (:filmId, :userId)";
-    private static final String SQL_LIKES_DELETE = "DELETE FROM likes WHERE film_id = :filmId AND user_id = :userId";
-    private static final String SQL_FILMS_GET_RATING = "SELECT f.*, COUNT(l.user_id) AS count " +
-            "FROM films f " +
-            "LEFT JOIN likes l ON f.id = l.film_id " +
-            "GROUP BY f.id " +
-            "ORDER BY count DESC " +
-            "LIMIT :count";
+    private static final String SQL_FILMS_SELECT_ALL =
+            "SELECT f.*, m.name AS mpa_name " +
+                    "FROM films f " +
+                    "JOIN mpa m ON f.mpa_id = m.id";
+
+    private static final String SQL_FILMS_INSERT =
+            "INSERT INTO films (name, description, release_date, duration, mpa_id) " +
+                    "VALUES (:name, :description, :releaseDate, :duration, :mpaId)";
+
+    private static final String SQL_FILMS_UPDATE =
+            "UPDATE films " +
+                    "SET name = :name, description = :description, " +
+                    "    release_date = :releaseDate, duration = :duration, mpa_id = :mpaId " +
+                    "WHERE id = :id";
+
+    private static final String SQL_FILMS_SELECT_BY_ID =
+            "SELECT f.*, m.name AS mpa_name, g.id, g.name AS genre_name " +
+                    "FROM films f " +
+                    "JOIN mpa m ON f.mpa_id = m.id " +
+                    "LEFT JOIN film_genre fg ON f.id = fg.film_id " +
+                    "LEFT JOIN genres g ON fg.genre_id = g.id " +
+                    "WHERE f.id = :id";
+
+    private static final String SQL_LIKES_INSERT =
+            "INSERT INTO likes (film_id, user_id) " +
+                    "VALUES (:filmId, :userId)";
+
+    private static final String SQL_LIKES_DELETE =
+            "DELETE FROM likes " +
+                    "WHERE film_id = :filmId AND user_id = :userId";
 
     @Override
     public List<Film> getAll() {
@@ -184,13 +193,6 @@ public class FilmDbStorage implements FilmStorage {
                 .addValue("userId", userId);
         jdbc.update(SQL_LIKES_DELETE, params);
         return film;
-    }
-
-    @Override
-    public List<Film> getRating(int count) {
-        SqlParameterSource params = new MapSqlParameterSource()
-                .addValue("count", count);
-        return jdbc.query(SQL_FILMS_GET_RATING, params, filmMapper);
     }
 
     @Override

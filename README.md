@@ -28,7 +28,9 @@ Filmorate — это приложение, которое поможет выб�
 #### Получение всех фильмов
 
 ```sql
-SELECT * FROM films;
+SELECT f.*, m.name AS mpa_name 
+FROM films f 
+JOIN mpa m ON f.mpa_id = m.id;
 ```
 
 #### Получение всех пользователей
@@ -40,12 +42,12 @@ SELECT * FROM users;
 #### Получение топ-N наиболее популярных фильмов
 
 ```sql
-SELECT films.id, films.name, COUNT(likes.film_id) AS likes_count
-FROM films
-LEFT JOIN likes ON films.id = likes.film_id
-GROUP BY films.id, films.name
-ORDER BY likes_count DESC
-LIMIT N;
+SELECT f.*, COUNT(l.user_id) AS count
+FROM films f
+LEFT JOIN likes l ON f.id = l.film_id
+GROUP BY f.id
+ORDER BY count DESC
+LIMIT :count;
 ```
 
 #### Получение списка общих друзей с другим пользователем
@@ -55,13 +57,13 @@ SELECT u2.id, u2.name
 FROM friends f1
 JOIN friends f2 ON f1.friend_id = f2.friend_id
 JOIN users u2 ON f2.friend_id = u2.id
-WHERE f1.user_id = ? AND f2.user_id = ?;
+WHERE f1.user_id = :userId1 AND f2.user_id = :userId2;
 ```
 
-#### Добавление признака дружба
+#### Добавление лайка фильму
 
 ```sql
-INSERT INTO friends (user_id, friend_id, friendship) VALUES (?, ?, true);
+INSERT INTO likes (film_id, user_id) VALUES (:filmId, :userId);
 ```
 ##  Структура проекта
 
