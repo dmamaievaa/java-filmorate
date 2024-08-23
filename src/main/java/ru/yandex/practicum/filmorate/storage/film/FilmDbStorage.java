@@ -187,7 +187,8 @@ public class FilmDbStorage implements FilmStorage {
         SqlParameterSource params = new MapSqlParameterSource()
                 .addValue("id", filmId);
 
-        Film film = jdbc.queryForObject(SQL_FILMS_SELECT_BY_ID, params, filmMapper);
+        List<Film> films = jdbc.query(SQL_FILMS_SELECT_BY_ID, params, filmMapper);
+        Film film = films.getFirst();
 
         if (film == null) {
             throw new NotFoundException("Film with ID " + filmId + " not found");
