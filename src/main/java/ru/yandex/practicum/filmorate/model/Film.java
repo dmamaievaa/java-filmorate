@@ -9,11 +9,12 @@ import jakarta.validation.constraints.PastOrPresent;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
-
 import java.time.LocalDate;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
+@Builder
 @Data
 public class Film {
     private Long id;
@@ -33,13 +34,26 @@ public class Film {
 
     private Set<Long> likes;
 
+    private Set<Genre> genres;
+
+    private Mpa mpa;
+
     @Builder
-    public Film(Long id, String name, String description, LocalDate releaseDate, long duration, Set<Long> likes) {
+    public Film(Long id,
+                String name,
+                String description,
+                LocalDate releaseDate,
+                long duration,
+                Set<Long> likes,
+                Set<Genre> genres,
+                Mpa mpa) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.releaseDate = releaseDate;
         this.duration = duration;
         this.likes = likes != null ? likes : new HashSet<>();
+        this.genres = genres != null ? genres : new LinkedHashSet<>();
+        this.mpa = mpa;
     }
 }

@@ -170,7 +170,7 @@ class FilmControllerTest {
         userStorage.add(user1);
         filmController.addLike(film1.getId(), user1.getId());
 
-        Collection<Film> popularFilms = filmController.getPopular(1L);
+        Collection<Film> popularFilms = filmController.getPopular(1);
         assertEquals(1, popularFilms.size());
         assertEquals(film1.getId(), popularFilms.iterator().next().getId());
     }

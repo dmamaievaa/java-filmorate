@@ -27,7 +27,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         film.setId(filmId);
         films.put(filmId, film);
         filmId += 1;
-        log.info("Film with id = {} was successfully added", film.getId());
+        log.debug("Film with id = {} was successfully added", film.getId());
         return film;
     }
 
@@ -36,7 +36,7 @@ public class InMemoryFilmStorage implements FilmStorage {
         Long filmId = film.getId();
         if (films.containsKey(filmId)) {
             films.put(filmId, film);
-            log.info("Film with id = {} was successfully updated", film.getId());
+            log.debug("Film with id = {} was successfully updated", film.getId());
         } else {
             throw new NotFoundException("Cannot update film as it does not exist");
         }
@@ -44,14 +44,31 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
+    public Film addLike(Long filmId, Long userId) {
+        getFilmById(filmId).getLikes().add(userId);
+        return getFilmById(filmId);
+    }
+
+    @Override
+    public Film deleteLike(Long filmId, Long userId) {
+        if (getFilmById(filmId).getLikes().contains(userId)) {
+            getFilmById(filmId).getLikes().remove(userId);
+        } else {
+            throw new NotFoundException("User did not rated this film.");
+        }
+        return getFilmById(filmId);
+    }
+
+
+    @Override
     public Film getFilmById(Long id) {
-        log.trace("Starting search for film with id = {}", id);
+        log.debug("Starting search for film with id = {}", id);
         Film film = films.get(id);
         if (film == null) {
             log.warn("Film with id = {} not found", id);
             throw new NotFoundException(String.format("Film with id = %d not found", id));
         } else {
-            log.trace("Film with id = {} found", id);
+            log.debug("Film with id = {} found", id);
             return film;
         }
     }

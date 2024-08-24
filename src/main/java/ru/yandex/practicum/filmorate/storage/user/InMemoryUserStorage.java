@@ -8,7 +8,9 @@ import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -27,7 +29,7 @@ public class InMemoryUserStorage implements UserStorage {
         user.setId(userId);
         users.put(userId, user);
         userId++;
-        log.info("User with id = {} successfully added", user.getId());
+        log.debug("User with id = {} successfully added", user.getId());
         return user;
     }
 
@@ -38,7 +40,7 @@ public class InMemoryUserStorage implements UserStorage {
                 checkUserLogin(users, user);
             }
             users.put(user.getId(), user);
-            log.info("User with id = {} successfully updated", user.getId());
+            log.debug("User with id = {} successfully updated", user.getId());
         } else {
             log.warn("User with id = {} not updated, as they are not registered", user.getId());
             throw new NotFoundException("Cannot update user data. User does not exist");
@@ -53,6 +55,38 @@ public class InMemoryUserStorage implements UserStorage {
         if (loginExists) {
             throw new ValidationException("User with this login is already registered");
         }
+    }
+
+    @Override
+    public void addFriend(Long userId, Long friendId) {
+        getUserById(userId).getFriends().add(friendId);
+        getUserById(friendId).getFriends().add(userId);
+    }
+
+    @Override
+    public void deleteFriend(Long userId, Long friendId) {
+        getUserById(userId).getFriends().remove(friendId);
+        getUserById(friendId).getFriends().remove(userId);
+    }
+
+
+    @Override
+    public List<User> getCommonFriends(Long userId, Long friendId) {
+        return getUserById(userId).getFriends().stream()
+                .filter(id -> getUserById(friendId).getFriends().contains(id))
+                .map(this::getUserById)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<User> getFriendsByUserId(Long id) {
+        User user = getUserById(id);
+        if (user == null) {
+            throw new NotFoundException("User with id = " + id + " not found");
+        }
+        return getAll().stream()
+                .filter(u -> user.getFriends().contains(u.getId()))
+                .collect(Collectors.toList());
     }
 
     @Override
