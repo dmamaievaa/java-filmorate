@@ -11,7 +11,7 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -23,10 +23,9 @@ public class MpaDbStorage implements MpaStorage {
     private static final String SQL_MPA_SELECT_BY_ID = "SELECT * FROM mpa WHERE id = :id";
     private static final String SQL_MPA_SELECT_BY_FILM_ID = "SELECT m.id, m.name FROM mpa m " +
             "JOIN films f ON m.id = f.mpa_id WHERE f.id = :filmId";
-    private static final String SQL_MPA_INSERT = "INSERT INTO mpa (name) VALUES (:name)";
 
     @Override
-    public Collection<Mpa> getAllMpa() {
+    public List<Mpa> getAllMpa() {
         return jdbc.query(SQL_MPA_SELECT_ALL, mpaMapper);
     }
 

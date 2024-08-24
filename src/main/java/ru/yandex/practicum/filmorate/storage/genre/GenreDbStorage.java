@@ -31,7 +31,7 @@ public class GenreDbStorage implements GenreStorage {
     private static final String SQL_GENRES_DELETE_BY_FILM_ID = "DELETE FROM film_genre WHERE film_id = :filmId";
 
     @Override
-    public Collection<Genre> getAllGenres() {
+    public List<Genre> getAllGenres() {
         return jdbc.query(SQL_GENRES_SELECT_ALL, genreMapper);
     }
 
@@ -57,7 +57,7 @@ public class GenreDbStorage implements GenreStorage {
     }
 
     @Override
-    public void addGenresToFilm(Film film, LinkedHashSet<Genre> listGenre) {
+    public void addGenresToFilm(Film film, Set<Genre> listGenre) {
         if (listGenre == null) {
             listGenre = new LinkedHashSet<>();
         }

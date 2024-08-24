@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.storage.mpa.MpaStorage;
 
-import java.util.Collection;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -16,7 +16,7 @@ public class MpaServiceImpl implements MpaService {
     private final MpaStorage mpaDbStorage;
 
     @Override
-    public Collection<Mpa> getAllMpa() {
+    public List<Mpa> getAllMpa() {
         return mpaDbStorage.getAllMpa();
     }
 

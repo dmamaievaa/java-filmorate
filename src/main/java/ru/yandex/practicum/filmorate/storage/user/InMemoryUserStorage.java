@@ -6,7 +6,6 @@ import ru.yandex.practicum.filmorate.exceptions.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -73,13 +72,10 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public List<User> getCommonFriends(Long userId, Long friendId) {
-        List<User> commonFriends = new ArrayList<>();
-        for (Long id : getUserById(userId).getFriends()) {
-            if (getUserById(friendId).getFriends().contains(id)) {
-                commonFriends.add(getUserById(id));
-            }
-        }
-        return commonFriends;
+        return getUserById(userId).getFriends().stream()
+                .filter(id -> getUserById(friendId).getFriends().contains(id))
+                .map(this::getUserById)
+                .collect(Collectors.toList());
     }
 
     @Override

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.service.genre.GenreService;
 
-import java.util.Collection;
+import java.util.List;
 
 
 @RestController
@@ -25,7 +25,7 @@ public class FilmGenreController {
     }
 
     @GetMapping()
-    public Collection<Genre> getAllGenres() {
+    public List<Genre> getAllGenres() {
         return filmGenreService.getAll();
     }
 }

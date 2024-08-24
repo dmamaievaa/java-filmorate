@@ -34,7 +34,7 @@ public class Film {
 
     private Set<Long> likes;
 
-    private LinkedHashSet<Genre> genres;
+    private Set<Genre> genres;
 
     private Mpa mpa;
 
@@ -45,7 +45,7 @@ public class Film {
                 LocalDate releaseDate,
                 long duration,
                 Set<Long> likes,
-                LinkedHashSet<Genre> genres,
+                Set<Genre> genres,
                 Mpa mpa) {
         this.id = id;
         this.name = name;

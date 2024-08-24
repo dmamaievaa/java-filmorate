@@ -8,7 +8,7 @@ import ru.yandex.practicum.filmorate.model.Genre;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.storage.genre.GenreDbStorage;
 
-import java.util.Collection;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -20,7 +20,7 @@ public class GenreServiceImpl implements GenreService {
 
 
     @Override
-    public Collection<Genre> getAll() {
+    public List<Genre> getAll() {
         return filmGenreStorage.getAllGenres();
     }
 
